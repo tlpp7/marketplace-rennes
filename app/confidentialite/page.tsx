@@ -1,0 +1,1 @@
+export default function Privacy(){return <main className="wrap"><h1>Confidentialité</h1><p>Version de démonstration, sans formulaire ni collecte volontaire de données personnelles.</p><p>La politique de confidentialité complète sera publiée avant ouverture.</p></main>}
