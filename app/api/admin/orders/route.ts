@@ -1,0 +1,2 @@
+import {currentAdmin} from "@/lib/admin";import {sql} from "@/lib/db";import {fail} from "@/lib/security";export const runtime="nodejs";
+export async function GET(){if(!await currentAdmin())return fail("Accès refusé",403);const orders=await sql("SELECT o.id,o.status,o.price_cents,o.created_at,u.handle AS buyer,i.sku,s.status AS shipping_status FROM marketplace_orders o JOIN users u ON u.id=o.buyer_id JOIN consignment_inventory i ON i.id=o.inventory_id LEFT JOIN shipments s ON s.order_id=o.id ORDER BY o.created_at DESC LIMIT 100");return Response.json({orders})}
