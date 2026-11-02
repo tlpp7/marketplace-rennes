@@ -12,6 +12,7 @@ set +a
 docker compose --env-file infra/docker/.env -f infra/docker/compose.dev.yml up -d --wait
 docker compose --env-file infra/docker/.env -f infra/docker/compose.dev.yml exec -T postgres psql -U rennfripes -d rennfripes < infra/sql/001_social.sql
 docker compose --env-file infra/docker/.env -f infra/docker/compose.dev.yml exec -T postgres psql -U rennfripes -d rennfripes < infra/sql/002_consignment.sql
+docker compose --env-file infra/docker/.env -f infra/docker/compose.dev.yml exec -T postgres psql -U rennfripes -d rennfripes < infra/sql/003_admin.sql
 if [[ ! -f .env.local ]]; then
   umask 077
   printf 'DATABASE_URL=postgresql://rennfripes:%s@127.0.0.1:5432/rennfripes\nSESSION_SECRET=%s\nACCOUNTS_ENABLED=true\nSEO_PUBLIC=false\n' "$POSTGRES_PASSWORD" "$(openssl rand -hex 48)" > .env.local
