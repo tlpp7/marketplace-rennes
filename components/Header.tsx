@@ -8,7 +8,7 @@ export default function Header(){
     <Link href="/catalogue/">Chiner</Link>
     <Link href="/depot-vente/rennes/">Déposer ses pièces</Link>
     <Link href="/profils/">La communauté</Link>
-    <Link href="/a-propos/">Notre histoire</Link>
+    <Link href="/a-propos/">Notre histoire</Link><Link href="/compte/">Mon compte</Link>
    </div>
    <Link className="nav-cta" href="/depot-vente/rennes/">Comment ça marche <span aria-hidden="true">↗</span></Link>
   </nav>
