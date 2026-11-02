@@ -1,0 +1,4 @@
+import {notFound} from "next/navigation";
+import {getProductBySlug,getProducts} from "@/modules/catalog/repository";
+export function generateStaticParams(){return getProducts().map(p=>({slug:p.slug}))}
+export default async function ProductPage({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const product=getProductBySlug(slug);if(!product)notFound();return <main className="wrap"><p className="tag">Fiche de démonstration · {product.id}</p><h1>{product.name}</h1><div className="placeholder">Photographies à ajouter</div><p className="price">{product.price.toLocaleString("fr-FR",{style:"currency",currency:"EUR"})}</p><p>{product.description}</p><p>Marque : {product.brand} · Taille : {product.size} · État : {product.condition}</p><p className="notice">Article fictif : aucune réservation ni transaction possible.</p></main>}
