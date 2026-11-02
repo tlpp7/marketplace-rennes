@@ -127,3 +127,12 @@
 .consignment-row p{margin:5px 0 0;color:var(--muted);font-size:13px}
 .consignment-row button{border:1px solid var(--green);color:var(--green);padding:9px 13px;border-radius:7px;background:white}
 @media(max-width:720px){.consignment-panel{padding:22px}.consignment-form{grid-template-columns:1fr}}
+
+.admin-consignments{margin-top:30px;background:#ecf0e8;padding:25px;border-radius:12px}
+.admin-consignments h2{font-family:Georgia,serif;font-size:32px;font-weight:400}
+.admin-item{background:white;padding:18px;border-radius:9px;border:1px solid #dce2d9;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:12px 0}
+.admin-item p,.admin-item small{color:var(--muted);font-size:13px}
+.admin-actions{display:flex;gap:8px;flex-wrap:wrap}
+.admin-actions button{border:1px solid var(--green);color:var(--green);padding:10px 14px;background:white;border-radius:7px}
+.member-profile-editor{margin:35px 0;padding:24px;background:#f0f2eb;border-radius:10px}
+@media(max-width:750px){.admin-item{align-items:start;flex-direction:column}}
