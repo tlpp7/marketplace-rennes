@@ -59,3 +59,32 @@
 .depot-final .button{flex-shrink:0}
 @media(max-width:1170px){.journey-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.journey-grid:before{display:none}.journey-node:nth-child(even){margin-top:0}.journey-node{min-height:260px}.care-panel{gap:22px;padding:38px}}
 @media(max-width:750px){.journey-section{padding-top:65px;padding-bottom:50px}.journey-grid{grid-template-columns:1fr;gap:13px;border-left:2px solid #b2c9ad;margin-left:17px;padding:0 0 0 23px}.journey-node{min-height:0;padding:23px}.journey-node:before{content:"";position:absolute;left:-31px;top:24px;height:14px;width:14px;background:var(--green);border:4px solid var(--bg);border-radius:50%}.journey-node-heading{margin-bottom:15px}.journey-legend{margin-left:17px}.community-section{padding-top:55px;padding-bottom:60px}.community-features{grid-template-columns:1fr;margin-top:27px}.community-feature{padding:26px}.community-symbol{margin-bottom:20px}.care-section{padding-bottom:60px}.care-panel{grid-template-columns:1fr;padding:28px 22px}.depot-final{flex-direction:column;align-items:start;padding-bottom:70px;gap:10px}}
+
+
+/* Directory of reseller and clothing-care profile previews, V0.2 */
+.profiles-page{padding-top:82px;padding-bottom:120px}
+.profiles-page>h1,.profile-detail h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(42px,6vw,76px);letter-spacing:-.055em;line-height:1.08;max-width:850px;margin:18px 0}
+.profiles-page h1 em{font-weight:400;color:var(--green)}
+.profile-lead{max-width:720px;color:var(--muted);line-height:1.8}
+.profile-directory-controls{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+.profile-directory-controls input,.profile-directory-controls select{background:white;border:1px solid #cbd4c7;border-radius:8px;padding:14px 16px;min-height:48px;color:var(--ink)}
+.profile-directory-controls input{flex:1;min-width:220px}
+.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.profile-card{background:#fff;border:1px solid var(--line);display:grid;grid-template-columns:155px 1fr;border-radius:12px;overflow:hidden;min-height:240px;transition:box-shadow .2s ease}
+.profile-card:hover{box-shadow:0 10px 35px rgba(20,50,30,.08)}
+.profile-illustration{background:#dbe5d2;display:grid;place-items:center;font-family:Georgia,serif;color:var(--green);font-size:74px}
+.profile-card:nth-child(even) .profile-illustration{background:#eee3d8;color:#a26853}
+.profile-card-body{padding:24px}
+.profile-card h3{font-size:25px;font-family:Georgia,serif;font-weight:400;margin:12px 0 7px}
+.profile-card p{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 15px}
+.profile-tags{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0}
+.profile-tags span{display:inline-block;border:1px solid #d8ded4;border-radius:30px;padding:6px 11px;font-size:11px}
+.profile-read{font-size:12px;font-weight:700;color:var(--green)}
+.profile-detail{padding-bottom:120px}
+.profile-detail-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:65px}
+.profile-hero-art{background:#e0e8d6;min-height:430px;border-radius:14px;display:grid;place-items:center;color:var(--green);font-family:Georgia,serif;font-size:180px}
+.profile-detail-grid h2{font-size:24px;font-family:Georgia,serif;font-weight:400;color:var(--green)}
+.profile-detail-grid p,.profile-detail-grid li{color:var(--muted);line-height:1.75}
+.profile-detail-grid h3{font-size:17px;margin-top:30px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:750px){.profiles-page{padding-top:55px;padding-bottom:70px}.profile-grid,.profile-detail-grid{grid-template-columns:1fr}.profile-card{grid-template-columns:110px 1fr;min-height:220px}.profile-card-body{padding:18px}.profile-card h3{font-size:22px}.profile-illustration{font-size:52px}.profile-detail-grid{gap:25px}.profile-hero-art{min-height:280px}}
