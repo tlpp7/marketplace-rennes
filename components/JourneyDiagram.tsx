@@ -1,0 +1,8 @@
+const steps=[
+{n:"01",title:"Sélectionner",text:"Choisis les pièces qui méritent une nouvelle histoire.",kind:"start"},
+{n:"02",title:"Confier",text:"Dépose tes vêtements ou fais-toi accompagner par un prestataire local.",kind:"step"},
+{n:"03",title:"Valoriser",text:"Contrôle, soin, photos et description : les pièces sont préparées.",kind:"step"},
+{n:"04",title:"Publier",text:"Chaque vêtement rejoint le vestiaire en ligne, avec son histoire.",kind:"step"},
+{n:"05",title:"Échanger",text:"Questions, suivi de revendeurs et avis vérifiés créent la confiance.",kind:"step"},
+{n:"06",title:"Transmettre",text:"Remise ou expédition, puis reversement selon les conditions convenues.",kind:"end"}];
+export default function JourneyDiagram(){return <section className="journey-section shell" aria-labelledby="journey-title"><div className="journey-heading"><span className="section-kicker">LE PARCOURS RENN’FRIPES</span><h2 id="journey-title">Du dressing à <em>la nouvelle histoire.</em></h2><p>Un même circuit pour accompagner les vêtements, les personnes et les services qui leur donnent une seconde vie.</p></div><ol className="journey-grid">{steps.map((step,i)=><li key={step.n} className={`journey-node journey-node-${i+1}`}><div className="journey-node-heading"><span className="journey-count">{step.n}</span><span className="journey-marker" aria-hidden="true">{i===5?"✳":"↗"}</span></div><h3>{step.title}</h3><p>{step.text}</p></li>)}</ol><div className="journey-legend"><span><i aria-hidden="true"/> Dépôt-vente accompagné</span><span><i aria-hidden="true"/> Échanges de proximité</span><span><i aria-hidden="true"/> Vente et transmission</span></div></section>}
