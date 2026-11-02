@@ -7,6 +7,7 @@ export default function Header(){
    <div className="navlinks">
     <Link href="/catalogue/">Chiner</Link>
     <Link href="/depot-vente/rennes/">Déposer ses pièces</Link>
+    <Link href="/profils/">La communauté</Link>
     <Link href="/a-propos/">Notre histoire</Link>
    </div>
    <Link className="nav-cta" href="/depot-vente/rennes/">Comment ça marche <span aria-hidden="true">↗</span></Link>
