@@ -88,3 +88,27 @@
 .profile-detail-grid h3{font-size:17px;margin-top:30px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:750px){.profiles-page{padding-top:55px;padding-bottom:70px}.profile-grid,.profile-detail-grid{grid-template-columns:1fr}.profile-card{grid-template-columns:110px 1fr;min-height:220px}.profile-card-body{padding:18px}.profile-card h3{font-size:22px}.profile-illustration{font-size:52px}.profile-detail-grid{gap:25px}.profile-hero-art{min-height:280px}}
+
+/* Member portal V0.3 */
+.account-page{padding-top:75px;padding-bottom:110px;min-height:65vh}
+.account-page>h1{font-family:Georgia,serif;font-size:clamp(43px,5vw,72px);letter-spacing:-.05em;font-weight:400}
+.account-page>h1 em{color:var(--green);font-weight:400}
+.account-page>p{max-width:690px;color:var(--muted);line-height:1.7}
+.account-panel,.member-panel{max-width:760px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:30px;margin-top:32px}
+.account-panel form,.member-panel form{display:grid;gap:16px}
+.account-panel h2,.member-panel h2{font-family:Georgia,serif;font-size:32px;font-weight:400}
+.account-switch{display:flex;gap:12px;margin-bottom:24px}
+.account-switch button{border:1px solid #c4cfc0;background:#fff;padding:10px 14px;border-radius:8px}
+.account-switch button[aria-pressed="true"]{background:var(--green);color:white}
+.account-panel label,.member-panel label{display:grid;gap:7px;font-size:13px;font-weight:700}
+.account-panel input,.member-panel input,.member-panel select,.member-panel textarea{border:1px solid #b7c4b7;border-radius:6px;padding:13px;width:100%;color:var(--ink);background:white}
+.account-panel button:disabled{opacity:.5}
+.form-message{color:#864d31;font-size:13px}
+.member-panel{max-width:none}
+.member-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:35px}
+.member-columns section,.member-messages{background:#f0f2eb;padding:18px;border-radius:9px}
+.member-columns h3,.member-messages h3{font-family:Georgia,serif;font-size:22px}
+.member-columns p,.member-messages p{font-size:13px;line-height:1.6}
+.member-item{display:block;background:white;border:1px solid #dbe0d3;border-radius:5px;padding:10px;margin:5px 0;text-align:left;width:100%}
+.member-messages{margin-top:25px}
+@media(max-width:750px){.member-columns{grid-template-columns:1fr}.account-panel,.member-panel{padding:20px}}
