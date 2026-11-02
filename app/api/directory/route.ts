@@ -1,0 +1,2 @@
+import {sql} from "@/lib/db";export const runtime="nodejs";
+export async function GET(){try{const profiles=await sql("SELECT u.handle,p.kind,p.city,p.bio FROM member_profiles p JOIN users u ON u.id=p.user_id WHERE p.approved=true AND u.disabled=false AND p.kind IN ('reseller','care') ORDER BY u.handle LIMIT 100");return Response.json({profiles})}catch{return Response.json({profiles:[],error:"Répertoire non configuré"},{status:503})}}
