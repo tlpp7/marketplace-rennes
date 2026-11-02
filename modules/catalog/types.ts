@@ -1,0 +1,1 @@
+export type Product = { id: string; slug: string; name: string; brand: string; category: string; size: string; condition: string; price: number; currency: "EUR"; location: string; status: "available" | "reserved" | "sold"; images: string[]; description: string; saleMode: "consignment" | "c2c"; demo?: boolean };
