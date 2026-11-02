@@ -1,0 +1,3 @@
+import Link from "next/link";
+import type {Profile} from "@/modules/profiles/types";
+export default function ProfileCard({profile}:{profile:Profile}){return <Link href={`/profils/${profile.slug}/`} className="profile-card"><div className="profile-illustration" aria-hidden="true"><span>{profile.kind==="care"?"✂":"✳"}</span></div><div className="profile-card-body"><span className="section-kicker">{profile.kind==="care"?"SERVICE TEXTILE":"REVENDEUR"} · {profile.city}</span><h3>{profile.name}</h3><p>{profile.headline}</p><div className="profile-tags">{profile.specialties.map(s=><span key={s}>{s}</span>)}</div><span className="profile-read">Découvrir le profil ↗</span></div></Link>}
