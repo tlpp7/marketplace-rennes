@@ -1,6 +1,6 @@
 {
   "name": "marketplace-rennes",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "check:products": "node scripts/check-products.mjs",
-    "check": "npm run check:products && npm run lint && npm run build"
+    "check": "npm run check:products && npm run check:profiles && npm run lint && npm run build",
+    "check:profiles": "node scripts/check-profiles.mjs"
   },
   "dependencies": {
     "next": "^15.5.0",
