@@ -1,0 +1,76 @@
+[
+  {
+    "id": "DEMO-S01",
+    "slug": "atelier-seconde-vie-demo",
+    "name": "Atelier Seconde Vie (démo)",
+    "kind": "care",
+    "headline": "Retouches et petites réparations",
+    "description": "Exemple fictif de profil prestataire : illustration d'un futur accompagnement textile, sans réservation possible.",
+    "city": "Rennes",
+    "specialties": [
+      "Couture",
+      "Réparation"
+    ],
+    "services": [
+      "Petites retouches",
+      "Conseils d'entretien"
+    ],
+    "demo": true,
+    "verified": false
+  },
+  {
+    "id": "DEMO-S02",
+    "slug": "studio-vestiaire-demo",
+    "name": "Studio Vestiaire (démo)",
+    "kind": "care",
+    "headline": "Photographie et préparation d'annonces",
+    "description": "Exemple fictif d'un service d'aide à la mise en vente. Aucun prestataire réel n'est associé.",
+    "city": "Rennes",
+    "specialties": [
+      "Photographie",
+      "Présentation"
+    ],
+    "services": [
+      "Photographie produit",
+      "Préparation d'annonce"
+    ],
+    "demo": true,
+    "verified": false
+  },
+  {
+    "id": "DEMO-R01",
+    "slug": "vestiaire-circulaire-demo",
+    "name": "Le Vestiaire Circulaire (démo)",
+    "kind": "reseller",
+    "headline": "Sélection de pièces de seconde main",
+    "description": "Profil revendeur fictif destiné à tester la présentation des futurs vendeurs partenaires.",
+    "city": "Rennes",
+    "specialties": [
+      "Vintage",
+      "Vestes"
+    ],
+    "services": [
+      "Sélection de vêtements"
+    ],
+    "demo": true,
+    "verified": false
+  },
+  {
+    "id": "DEMO-R02",
+    "slug": "pieces-a-transmettre-demo",
+    "name": "Pièces à transmettre (démo)",
+    "kind": "reseller",
+    "headline": "Belles pièces à faire circuler",
+    "description": "Profil vendeur de démonstration. Abonnement et messagerie ne sont pas encore disponibles.",
+    "city": "Rennes",
+    "specialties": [
+      "Seconde main",
+      "Casual"
+    ],
+    "services": [
+      "Revente de vêtements"
+    ],
+    "demo": true,
+    "verified": false
+  }
+]
