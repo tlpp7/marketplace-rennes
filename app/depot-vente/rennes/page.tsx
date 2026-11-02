@@ -1,0 +1,3 @@
+import type {Metadata} from "next";
+export const metadata:Metadata={title:"Dépôt-vente de vêtements à Rennes"};
+export default function Depot(){return <main className="wrap"><p className="tag">Service en préparation</p><h1>Déposer ses vêtements à Rennes</h1><p className="muted">Notre projet vise à faciliter l’estimation, la photographie, la publication et l’expédition des vêtements d’occasion.</p><h2>Comment cela fonctionnera</h2><div className="grid">{["Pré-estimation","Dépôt sur rendez-vous","Contrôle et photos","Vente et reversement"].map((x,i)=><div className="card" key={x}><p className="tag">Étape {i+1}</p><h3>{x}</h3></div>)}</div><p className="notice">Les dépôts ne sont pas encore acceptés. Les modalités définitives seront publiées avant ouverture.</p></main>}
