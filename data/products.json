@@ -1,0 +1,36 @@
+[
+  {
+    "id": "DEMO-001",
+    "slug": "veste-jean-bleue-demo-001",
+    "name": "Veste en jean bleue — démonstration",
+    "brand": "Exemple",
+    "category": "vestes",
+    "size": "M",
+    "condition": "Très bon état",
+    "price": 39,
+    "currency": "EUR",
+    "location": "Rennes",
+    "status": "available",
+    "images": [],
+    "description": "Article fictif de démonstration : aucune vente possible.",
+    "saleMode": "consignment",
+    "demo": true
+  },
+  {
+    "id": "DEMO-002",
+    "slug": "chemise-blanche-demo-002",
+    "name": "Chemise blanche — démonstration",
+    "brand": "Exemple",
+    "category": "chemises",
+    "size": "L",
+    "condition": "Bon état",
+    "price": 22,
+    "currency": "EUR",
+    "location": "Rennes",
+    "status": "available",
+    "images": [],
+    "description": "Article fictif de démonstration : aucune vente possible.",
+    "saleMode": "c2c",
+    "demo": true
+  }
+]
