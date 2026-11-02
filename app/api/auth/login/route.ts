@@ -1,0 +1,3 @@
+import {sql} from "@/lib/db";import {body,checkPassword,fail,setSession,stringField,trustedRequest} from "@/lib/security";
+export const runtime="nodejs";
+export async function POST(request:Request){try{if(!await trustedRequest(request))return fail("Origine non autorisée",403);const d=await body(request),email=stringField(d.email,254).toLowerCase();if(!email||typeof d.password!=="string")return fail("Identifiants invalides");const rows=await sql<{id:string;password_hash:string}>("SELECT id,password_hash FROM users WHERE email=$1 AND disabled=false",[email]);if(!rows[0]||!checkPassword(d.password,rows[0].password_hash))return fail("Identifiants invalides",401);await setSession(rows[0].id);return Response.json({ok:true})}catch{return fail("Connexion indisponible",500)}}
