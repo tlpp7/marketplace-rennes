@@ -1,1 +1,5 @@
-import type {Metadata} from "next";import ConsignmentPanel from "@/components/ConsignmentPanel";import MemberDashboard from "@/components/MemberDashboard";export const metadata:Metadata={title:"Mon espace",robots:{index:false,follow:false}};export const dynamic="force-dynamic";export default function Dashboard(){return <main className="shell account-page"><span className="section-kicker">RENN’FRIPES / MEMBRES</span><h1>Ton espace <em>personnel.</em></h1><MemberDashboard/><ConsignmentPanel/></main>}
+import type {Metadata} from "next";
+import AccountWorkspace from "@/components/AccountWorkspace";
+export const metadata:Metadata={title:"Mon espace",robots:{index:false,follow:false}};
+export const dynamic="force-dynamic";
+export default function Dashboard(){return <main className="shell account-page"><span className="section-kicker">RENN’FRIPES / MEMBRES</span><h1>Mon espace<span className="accent">.</span></h1><AccountWorkspace/></main>}
