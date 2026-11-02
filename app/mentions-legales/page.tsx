@@ -1,0 +1,1 @@
+export default function Legal(){return <main className="wrap"><h1>Mentions légales</h1><p className="notice">À compléter avec l’identité et les coordonnées de l’éditeur et de l’hébergeur avant tout lancement public commercial.</p></main>}
