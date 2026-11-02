@@ -1,0 +1,1 @@
+import {clearSession,fail,trustedRequest} from "@/lib/security";export const runtime="nodejs";export async function POST(request:Request){if(!await trustedRequest(request))return fail("Origine non autorisée",403);await clearSession();return Response.json({ok:true})}
