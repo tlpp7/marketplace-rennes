@@ -1,3 +1,4 @@
 import type { NextConfig } from "next";
-const nextConfig: NextConfig = { output: "export", trailingSlash: true, images: { unoptimized: true } };
+// Server-side social features require Node.js; static export is no longer supported.
+const nextConfig: NextConfig = { trailingSlash: true, images: {unoptimized:true} };
 export default nextConfig;
