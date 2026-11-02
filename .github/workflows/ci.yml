@@ -12,5 +12,6 @@ jobs:
           node-version: "22"
       - run: npm install
       - run: npm run check:products
+      - run: npm run check:profiles
       - run: npm run lint
       - run: npm run build
