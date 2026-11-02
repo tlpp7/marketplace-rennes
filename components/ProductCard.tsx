@@ -1,0 +1,3 @@
+import Link from "next/link";
+import type { Product } from "@/modules/catalog/types";
+export default function ProductCard({product}:{product:Product}){return <Link className="card" href={`/produit/${product.slug}/`}><div className="placeholder">Photo à venir</div><p className="tag">{product.category} · {product.size}</p><h3>{product.name}</h3><p className="muted">{product.condition} · {product.location}</p><div className="price">{product.price.toLocaleString("fr-FR",{style:"currency",currency:"EUR"})}</div><p className="muted">{product.demo?"Démonstration — non commercialisé":product.status==="available"?"Disponible":"Indisponible"}</p></Link>}
