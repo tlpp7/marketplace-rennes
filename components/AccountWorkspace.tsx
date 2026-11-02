@@ -2,12 +2,14 @@
 import {useEffect,useState} from "react";
 import Link from "next/link";
 import MemberDashboard from "@/components/MemberDashboard";
+import OrdersPanel from "@/components/OrdersPanel";
 import ConsignmentPanel from "@/components/ConsignmentPanel";
-type Tab="overview"|"deposits"|"community";
+type Tab="overview"|"deposits"|"community"|"orders";
 type Summary={deposits:number;active:number;following:number;messages:number;appointments:number};
 const sections=[
 {id:"overview" as Tab,name:"Vue d’ensemble",symbol:"⌂",subtitle:"L'essentiel au même endroit"},
 {id:"deposits" as Tab,name:"Mes dépôts",symbol:"▣",subtitle:"Proposer et suivre mes pièces"},
+{id:"orders" as Tab,name:"Mes commandes",symbol:"◈",subtitle:"Demandes et livraisons"},
 {id:"community" as Tab,name:"Échanges & profil",symbol:"♡",subtitle:"Profils, messages, rendez-vous"}
 ];
 export default function AccountWorkspace(){
@@ -53,6 +55,7 @@ export default function AccountWorkspace(){
     <p className="workspace-footnote">Les fonctions de vente et de dépôt physique restent en préparation.</p>
    </>}
    {tab==="deposits"&&<><div className="workspace-welcome"><span className="section-kicker">DÉPÔT-VENTE</span><h2>Mes pièces, <em>à mon rythme.</em></h2><p>Propose un vêtement, puis retrouve ses étapes de traitement.</p></div><ConsignmentPanel/></>}
+   {tab==="orders"&&<><div className="workspace-welcome"><span className="section-kicker">COMMANDES</span><h2>Mes achats, <em>à suivre.</em></h2><p>Demandes de commande et suivi des futures livraisons.</p></div><OrdersPanel/></>}
    {tab==="community"&&<><div className="workspace-welcome"><span className="section-kicker">COMMUNAUTÉ ET COMPTE</span><h2>Mes liens, <em>mes échanges.</em></h2><p>Gère ton profil, tes abonnements, tes messages et tes demandes de rendez-vous.</p></div><MemberDashboard/></>}
   </section>
  </div>
