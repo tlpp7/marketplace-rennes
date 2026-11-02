@@ -163,3 +163,13 @@
 .workspace-main .consignment-panel{margin:10px 0 0;padding:24px}.workspace-main .member-panel{margin:10px 0 0}
 @media(max-width:950px){.workspace-layout{grid-template-columns:1fr}.workspace-nav{position:static}.workspace-nav-intro{padding:10px}.workspace-nav-item{display:inline-grid;width:calc(33.333% - 8px);vertical-align:top}.workspace-nav-item small{display:none}.workspace-stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.workspace-layout{gap:14px}.workspace-nav{padding:10px}.workspace-nav-item{display:flex;gap:7px;justify-content:center;width:100%;margin-bottom:4px}.workspace-nav-item>span:last-child{display:none}.workspace-actions{grid-template-columns:1fr}.workspace-stats{gap:8px}.workspace-stats>div{padding:15px}.workspace-stats strong{font-size:28px}}
+
+/* V0.5 order requests and administrator stock */
+.orders-panel{margin-top:12px;padding:28px;background:#edf2e9;border-radius:12px}
+.orders-panel h2{font-family:Georgia,serif;font-size:34px;font-weight:400}
+.orders-panel form{display:flex;align-items:end;gap:15px;flex-wrap:wrap;margin:24px 0}
+.orders-panel label{display:grid;gap:8px;font-size:13px;font-weight:700;flex:1;min-width:220px}
+.orders-panel input{padding:13px;border:1px solid #b9c8b7;background:white;border-radius:8px}
+.workspace-nav-item{cursor:pointer}
+@media(max-width:950px){.workspace-nav-item{width:calc(25% - 9px)}}
+@media(max-width:620px){.workspace-nav-item{width:100%}}
