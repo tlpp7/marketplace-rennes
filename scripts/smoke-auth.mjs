@@ -45,7 +45,13 @@ try{
  if(afterFollow.data.follows.length)throw Error("Follow not removed");
  const forbiddenAnonymous=await get("/api/messages/?conversationId="+conversation.result.conversationId,"rf_session=invalid");
  if(forbiddenAnonymous.status!==401)throw Error("Unauthorized anonymous read allowed");
- console.log("V0.3 PASS: accounts, follows, access isolation, messaging, appointments and unverified-review refusal");
+ const blockedAdmin=await get("/api/admin/profiles/",b.cookie);
+ if(blockedAdmin.status!==403)throw Error("Ordinary member accessed admin profiles");
+ const crossAppointment=await fetch(origin+"/api/appointments/"+appointmentId+"/",{method:"PATCH",headers:{"Content-Type":"application/json",Origin:origin,Cookie:outsider.cookie},body:JSON.stringify({action:"decline"})});
+ if(crossAppointment.status!==409)throw Error("Outsider changed an appointment");
+ const foreignOrigin=await fetch(origin+"/api/messages/",{method:"POST",headers:{"Content-Type":"application/json",Origin:"https://attacker.example",Cookie:b.cookie},body:JSON.stringify({conversationId:conversation.result.conversationId,message:"cross-site request"})});
+ if(foreignOrigin.status!==403)throw Error("Foreign-origin message accepted");
+ console.log("V0.3 PASS: accounts, follows, messages, CSRF, appointments, admin denial and review checks");
 }finally{
  await client.query("DELETE FROM users WHERE email LIKE $1",["%"+nonce+"@example.invalid"]).catch(()=>{});
  await client.end();
