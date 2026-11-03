@@ -68,6 +68,8 @@ try{
  assert.equal(quality.status,200,"quality: "+JSON.stringify(quality.data));
  const prematurePublication=await request("/api/admin/inventory/"+itemId+"/",{method:"PATCH",cookie:admin.cookie,body:{state:"listed",location:"ETAGE-1"}});
  assert.equal(prematurePublication.status,409,"Publication bypass must fail");
+ const missingPhoto=await request("/api/admin/inventory/"+itemId+"/operations/",{method:"POST",cookie:admin.cookie,body:{action:"publish",size:"M",photoUrl:"/consignments/missing-"+suffix+".png",description:"Photo manquante : la publication doit être refusée."}});
+ assert.equal(missingPhoto.status,400,"A missing local photo must block publication");
  const publication=await request("/api/admin/inventory/"+itemId+"/operations/",{method:"POST",cookie:admin.cookie,body:{action:"publish",size:"M",photoUrl:"/consignments/test-ci-"+suffix+".png",description:"Article fictif de test, jamais destiné à la vente réelle."}});
  assert.equal(publication.status,200,"publication: "+JSON.stringify(publication.data));
  const catalog=await request("/catalogue/");
@@ -82,8 +84,9 @@ try{
  assert.match(own.receipt_sha256,/^[a-f0-9]{64}$/);
  console.log("V0.2 PASS : demande, mandat, réception, qualité, publication et accès propriétaire");
 }finally{
- // Proof documents are intentionally immutable. This test only runs against
- // an isolated database: keep the synthetic rows and dispose of that database.
+ // Evidence remains immutable. Unpublish the synthetic listing before
+ // removing its temporary photograph from this isolated test environment.
+ if(itemId)await client.query("UPDATE consignment_inventory SET state='returned' WHERE id=$1 AND state='listed'",[itemId]).catch(()=>{});
  await unlink(fixturePath).catch(()=>{});
  await client.end();
 }
