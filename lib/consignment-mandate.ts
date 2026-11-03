@@ -26,7 +26,8 @@ export function mandatePreview(item:Item){
    "Version des conditions : "+c.version,
    "",
    c.terms
-  ].join("\n")
+  ].join("\n"),
+  sha256:""
  };
 }
 export function finalizedMandate(item:Item,depositorName:string,depositorAddress:string){
