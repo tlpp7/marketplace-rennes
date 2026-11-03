@@ -101,9 +101,9 @@ export default function AdminInventoryPanel(){
       {action==="publish"&&<>
        {!item.mandate_accepted&&<p className="demo-note">Publication impossible : le déposant doit accepter le mandat depuis « Mon espace ».</p>}
        <label>Taille réelle<input required maxLength={40} value={draft.size} onChange={e=>update("size",e.target.value)} placeholder="M"/></label>
-       <label>URL HTTPS de la photographie<input required type="text" maxLength={1000} value={draft.photoUrl} onChange={e=>update("photoUrl",e.target.value)} placeholder="https://.../veste.jpg"/></label>
+       <label>Photo : URL HTTPS autorisée ou chemin /consignments/...<input required type="text" maxLength={1000} value={draft.photoUrl} onChange={e=>update("photoUrl",e.target.value)} placeholder="/consignments/RF-0000001.jpg"/></label>
        <label>Description publique<textarea required minLength={20} maxLength={1500} value={draft.description} onChange={e=>update("description",e.target.value)}/></label>
-       <p className="product-secondary">L’hôte de la photo doit être autorisé dans CONSIGNMENT_MEDIA_HOSTS. Aucun paiement n’est déclenché ici.</p>
+       <p className="product-secondary">La photo locale doit exister dans public/consignments/ avant la publication. Pour une photo externe, autoriser son hôte via CONSIGNMENT_MEDIA_HOSTS. Aucun paiement n’est déclenché ici.</p>
       </>}
       <div className="admin-actions">
        <button type="submit" disabled={busy||(action==="publish"&&!item.mandate_accepted)}>{busy?"Enregistrement…":"Enregistrer l’étape"}</button>
