@@ -67,7 +67,7 @@ export default function AdminInventoryPanel(){
      <small>Commission {(item.commission_bps/100).toFixed(2)} % · prix {(item.list_price_cents/100).toFixed(2)} €</small>
      <p className="product-secondary">Réception : {item.receipt_reference??"manquante"} · Qualité : {item.quality_verdict??"à réaliser"} · Mandat : {item.mandate_accepted?"accepté":"en attente"}</p>
      {item.public_photo_url&&<p className="product-secondary">Photo publique enregistrée.</p>}
-     {editing&&<form className="consignment-form" onSubmit={e=>{e.preventDefault();void operation(item,action)}}>
+     {editing&&action&&<form className="consignment-form" onSubmit={e=>{e.preventDefault();void operation(item,action)}}>
       {action==="receive"&&<>
        <label>Référence de bordereau<input required minLength={4} maxLength={80} value={draft.proofReference} onChange={e=>update("proofReference",e.target.value)}/></label>
        <label>Emplacement physique<input required minLength={2} maxLength={48} value={draft.location} onChange={e=>update("location",e.target.value)}/></label>
