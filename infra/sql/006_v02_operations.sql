@@ -50,9 +50,11 @@ BEGIN
   ) THEN
    RAISE EXCEPTION 'Transition de stock interdite % -> %', OLD.state, NEW.state;
   END IF;
-  IF NEW.state='quality_check' AND NOT EXISTS
-    (SELECT 1 FROM consignment_receipts WHERE item_id=NEW.id) THEN
-   RAISE EXCEPTION 'Preuve de réception manquante';
+  IF NEW.state='quality_check' AND (
+    NOT EXISTS (SELECT 1 FROM consignment_receipts WHERE item_id=NEW.id) OR
+    NOT EXISTS (SELECT 1 FROM consignment_mandates WHERE item_id=NEW.id)
+  ) THEN
+   RAISE EXCEPTION 'Réception ou mandat manquant';
   END IF;
   IF NEW.state='ready' AND NOT EXISTS
     (SELECT 1 FROM consignment_quality_reports WHERE item_id=NEW.id AND verdict='passed') THEN
