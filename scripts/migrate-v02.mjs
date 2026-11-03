@@ -8,6 +8,8 @@ await client.connect();
 try{
  const r=await client.query("SELECT current_database() AS name,to_regclass('public.consignment_inventory') AS inventory");
  if(!r.rows[0].inventory)throw Error("Schéma V0.2 antérieur absent. Appliquer 001 à 005 d'abord.");
+ if(!/test/i.test(r.rows[0].name)&&process.env.RF_V02_ALLOW_PRODUCTION!=="I_HAVE_A_VERIFIED_BACKUP")
+  throw Error("Migration refusée hors base de test : sauvegarde/restauration vérifiées et RF_V02_ALLOW_PRODUCTION requis");
  console.log("Migration V0.2 sur la base :",r.rows[0].name);
  await client.query("BEGIN");
  for(let i=0;i<migrations.length;i++){
