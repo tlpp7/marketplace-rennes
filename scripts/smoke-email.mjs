@@ -7,7 +7,7 @@ const nonce=Date.now().toString(36);
 const email="smtp_"+nonce+"@example.invalid";
 const handle="smtp_"+nonce;
 const messages=[];
-const smtp=new SMTPServer({secure:false,authOptional:true,disabledCommands:["STARTTLS"],onAuth(auth,session,cb){cb(null,{user:"test"})},onData(stream,session,cb){let s="";stream.on("data",v=>s+=v);stream.on("end",()=>{messages.push(s);cb()})}});
+const smtp=new SMTPServer({secure:false,authOptional:true,allowInsecureAuth:true,disabledCommands:["STARTTLS"],onAuth(auth,session,cb){cb(null,{user:"test"})},onData(stream,session,cb){let s="";stream.on("data",v=>s+=v);stream.on("end",()=>{messages.push(s);cb()})}});
 const client=new pg.Client({connectionString:process.env.DATABASE_URL});
 let child;
 function check(condition,reason){if(!condition)throw Error(reason)}
