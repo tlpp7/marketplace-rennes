@@ -26,13 +26,14 @@ test("V0.2 : contraintes de workflow en PostgreSQL (transaction annulée)",async
   const receipt="Renn'Fripes : attestation de réception "+sku;
   const hash=createHash("sha256").update(receipt).digest("hex");
   await client.query("INSERT INTO consignment_receipts(item_id,receiver_id,proof_reference,location_code,receipt_document,receipt_sha256) VALUES($1,$2,$3,$4,$5,$6)",[item.id,user.id,"TEST-REC-001","ETAGERE-1",receipt,hash]);
+  await denied("UPDATE consignment_inventory SET state='quality_check' WHERE id=$1");
+  await client.query("INSERT INTO consignment_mandates(item_id,owner_id,depositor_name,depositor_address,terms_version,document_text,document_sha256) VALUES($1,$2,$3,$4,$5,$6,$7)",[item.id,user.id,"Test Déposant","Rue de la Test, Rennes","v02-test","Mandat de test","a".repeat(64)]);
   await client.query("UPDATE consignment_inventory SET state='quality_check' WHERE id=$1",[item.id]);
   await denied("UPDATE consignment_inventory SET state='ready' WHERE id=$1");
   const checks={labelMatches:true,clean:true,conditionMatches:true,photoVerified:true};
   await client.query("INSERT INTO consignment_quality_reports(item_id,inspector_id,verdict,checks) VALUES($1,$2,'passed',$3::jsonb)",[item.id,user.id,JSON.stringify(checks)]);
   await client.query("UPDATE consignment_inventory SET state='ready' WHERE id=$1",[item.id]);
   await denied("UPDATE consignment_inventory SET state='listed' WHERE id=$1");
-  await client.query("INSERT INTO consignment_mandates(item_id,owner_id,depositor_name,depositor_address,terms_version,document_text,document_sha256) VALUES($1,$2,$3,$4,$5,$6,$7)",[item.id,user.id,"Test Déposant","Rue de la Test, Rennes","v02-test","Mandat de test","a".repeat(64)]);
   await denied("UPDATE consignment_inventory SET state='listed' WHERE id=$1");
   await client.query("INSERT INTO consignment_publications(item_id,publisher_id,size_label,photo_url,public_description) VALUES($1,$2,$3,$4,$5)",[item.id,user.id,"M","/consignments/test.jpg","Description publique de la veste de test."]);
   await client.query("UPDATE consignment_inventory SET state='listed' WHERE id=$1",[item.id]);
