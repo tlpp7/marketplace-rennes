@@ -39,7 +39,6 @@ test("V0.2 : contraintes de workflow en PostgreSQL (transaction annulée)",async
   await denied("UPDATE consignment_quality_reports SET notes='altered' WHERE item_id=$1");
   await client.query("UPDATE consignment_inventory SET state='ready' WHERE id=$1",[item.id]);
   await denied("UPDATE consignment_inventory SET state='listed' WHERE id=$1");
-  await denied("UPDATE consignment_inventory SET state='listed' WHERE id=$1");
   await client.query("INSERT INTO consignment_publications(item_id,publisher_id,size_label,photo_url,public_description) VALUES($1,$2,$3,$4,$5)",[item.id,user.id,"M","/consignments/test.jpg","Description publique de la veste de test."]);
   await client.query("UPDATE consignment_inventory SET state='listed' WHERE id=$1",[item.id]);
   await denied("UPDATE consignment_publications SET public_description='modified' WHERE item_id=$1");
