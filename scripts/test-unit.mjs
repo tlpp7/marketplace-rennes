@@ -35,6 +35,5 @@ test("V0.2 requires reception, quality, mandate and publication",()=>{
  assert.match(evidence,/consignment_positive_checks/);
  const transition=fs.readFileSync("app/api/admin/inventory/[id]/route.ts","utf8");
  assert.doesNotMatch(transition,/reserved:\s*\["listed","sold"\]/);
- const operations=fs.readFileSync("app/api/admin/inventory/[id]/operations/route.ts","utf8");
  assert.match(operations,/existsSync/);
 });
