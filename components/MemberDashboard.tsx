@@ -6,7 +6,46 @@ export default function MemberDashboard(){
  const [profileKind,setProfileKind]=useState("buyer"),[city,setCity]=useState("Rennes"),[bio,setBio]=useState(""),[me,setMe]=useState<UserData|null>(null),[conversations,setConversations]=useState<Conversation[]>([]),[appointments,setAppointments]=useState<Appointment[]>([]),[follows,setFollows]=useState<{id:string;handle:string}[]>([]),[error,setError]=useState(""),[target,setTarget]=useState(""),[note,setNote]=useState(""),[date,setDate]=useState(""),[type,setType]=useState("follow"),[active,setActive]=useState<string|null>(null),[messages,setMessages]=useState<{id:string;body:string;sender:string}[]>([]),[draft,setDraft]=useState("");
  async function get(url:string){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error(r.status===401?"Connecte-toi pour accéder à cet espace":"Service indisponible");return r.json()}
  async function refresh(){try{const me=await get("/api/me");setMe(me);const profile=await get("/api/profile");if(profile.profile){setProfileKind(profile.profile.kind);setCity(profile.profile.city);setBio(profile.profile.bio)}const [f,c,a]=await Promise.all([get("/api/follows"),get("/api/conversations"),get("/api/appointments")]);setFollows(f.follows);setConversations(c.conversations);setAppointments(a.appointments);setError("")}catch(e){setError(e instanceof Error?e.message:"Erreur")}}
- useEffect(()=>{void refresh()},[]);
+ useEffect(() => {
+  let cancelled = false;
+
+  async function loadInitial() {
+    try {
+      const meData = await get("/api/me");
+      const profileData = await get("/api/profile");
+      const [f, c, a] = await Promise.all([
+        get("/api/follows"),
+        get("/api/conversations"),
+        get("/api/appointments")
+      ]);
+
+      if (cancelled) return;
+
+      setMe(meData);
+
+      if (profileData.profile) {
+        setProfileKind(profileData.profile.kind);
+        setCity(profileData.profile.city);
+        setBio(profileData.profile.bio);
+      }
+
+      setFollows(f.follows);
+      setConversations(c.conversations);
+      setAppointments(a.appointments);
+      setError("");
+    } catch (e) {
+      if (!cancelled) {
+        setError(e instanceof Error ? e.message : "Erreur");
+      }
+    }
+  }
+
+  void loadInitial();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
  async function send(path:string,body:object,method="POST"){try{const r=await fetch(path,{method,headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw Error(j.error??"Échec");setError("Action enregistrée");await refresh();return j}catch(e){setError(e instanceof Error?e.message:"Erreur");return null}}
  async function submit(e:React.FormEvent){e.preventDefault();if(type==="follow")await send("/api/follows",{handle:target});if(type==="conversation"){const j=await send("/api/conversations",{handle:target});if(j?.conversationId)await openConversation(j.conversationId)}if(type==="appointment")await send("/api/appointments",{providerHandle:target,startsAt:new Date(date).toISOString(),note})}
  async function openConversation(id:string){try{const j=await get("/api/messages?conversationId="+encodeURIComponent(id));setActive(id);setMessages(j.messages)}catch(e){setError(String(e))}}
