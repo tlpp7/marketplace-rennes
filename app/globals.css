@@ -173,3 +173,16 @@
 .workspace-nav-item{cursor:pointer}
 @media(max-width:950px){.workspace-nav-item{width:calc(25% - 9px)}}
 @media(max-width:620px){.workspace-nav-item{width:100%}}
+
+/* V0.2 — pièces justificatives et contrôle des dépôts */
+.admin-item>div:first-child{flex:1;min-width:0}
+.admin-item .consignment-form{margin:18px 0 0;padding:18px;background:#f7f9f4;border:1px solid #dbe4d5;border-radius:9px;max-width:720px}
+.admin-item .consignment-form label{width:100%;min-width:0}
+.mandate-review{margin-top:30px;padding:24px;background:#eef2e9;border:1px solid #d8e2d4;border-radius:12px}
+.mandate-review h3{font-family:Georgia,serif;font-size:28px;font-weight:400}
+.mandate-document{white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;line-height:1.6;font-family:inherit;font-size:13px;background:#fff;border:1px solid #dfe5dc;border-radius:8px;padding:18px}
+.mandate-review code,.consignment-row code{overflow-wrap:anywhere;font-size:11px}
+.consignment-row details{margin:12px 0}
+.consignment-row summary{cursor:pointer;color:var(--green);font-weight:700}
+.admin-item .consignment-form input[type="checkbox"],.mandate-review input[type="checkbox"]{width:auto;min-width:unset;margin-right:8px}
+@media(max-width:720px){.admin-item .consignment-form{padding:12px}.mandate-review{padding:16px}}
