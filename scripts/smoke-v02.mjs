@@ -35,7 +35,7 @@ try{
  const databaseName=(await client.query("SELECT current_database() AS name")).rows[0].name;
  if(!/test/i.test(databaseName))throw Error("Ce smoke test exige une base isolée dont le nom contient test");
  await mkdir(join(process.cwd(),"public","consignments"),{recursive:true});
- await writeFile(fixturePath,Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+nmWQAAAAASUVORK5CYII=","base64"));
+ await writeFile(fixturePath,Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP8//8/AwMDEwMDAwMDAwAkBgMB/DXemwAAAABJRU5ErkJggg==","base64"));
  const member=await registration("v02seller");
  const admin=await registration("v02admin");
  await client.query("INSERT INTO platform_admins(user_id) VALUES($1)",[admin.id]);
