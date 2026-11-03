@@ -101,7 +101,7 @@ export default function ConsignmentPanel(){
   </div>):<p>Aucune demande enregistrée.</p>}</div>
   {mandateId&&mandate&&<section className="mandate-review">
    <h3>{mandate.accepted?"Mandat archivé":"Mandat à examiner et accepter"}</h3>
-   <pre className="mandate-document">{mandate.accepted?mandate.mandate?.document_text:mandate.preview}</pre>
+   <pre className="mandate-document">{mandate.accepted?mandate.mandate?.document_text:mandate.preview}</pre>{!mandate.accepted&&mandate.previewSha256&&<p className="product-secondary">Empreinte du texte présenté : <code>{mandate.previewSha256}</code></p>}
    {mandate.accepted?<p>Accepté le {mandate.mandate?.accepted_at?new Date(mandate.mandate.accepted_at).toLocaleString("fr-FR"):"—"} · SHA-256 : <code>{mandate.mandate?.document_sha256}</code></p>:
    <form onSubmit={acceptMandate} className="consignment-form">
     <label>Nom et prénom légaux du déposant<input required minLength={4} maxLength={160} autoComplete="name" value={legalName} onChange={e=>setLegalName(e.target.value)}/></label>
