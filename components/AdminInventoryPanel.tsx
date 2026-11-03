@@ -23,7 +23,20 @@ export default function AdminInventoryPanel(){
    setItems(data.items??[]);setLoaded(true);
   }catch(e){setNotice(e instanceof Error?e.message:"Inventaire indisponible")}
  },[]);
- useEffect(()=>{void load()},[load]);
+ useEffect(()=>{
+  let cancelled=false;
+  async function initial(){
+   try{
+    const response=await fetch("/api/admin/inventory",{cache:"no-store"});
+    const data=await response.json();
+    if(cancelled)return;
+    if(!response.ok)throw Error(data.error??"Inventaire indisponible");
+    setItems(data.items??[]);setLoaded(true);
+   }catch(e){if(!cancelled)setNotice(e instanceof Error?e.message:"Inventaire indisponible")}
+  }
+  void initial();
+  return ()=>{cancelled=true};
+ },[]);
  function update<K extends keyof Draft>(key:K,value:Draft[K]){setDraft(v=>({...v,[key]:value}))}
  function open(item:Item,action:string){
   setActive(item.id+":"+action);setDraft({...blank,location:item.location_code});
