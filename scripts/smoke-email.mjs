@@ -15,7 +15,7 @@ async function request(path,data,cookie){
  const r=await fetch(origin+path,{method:"POST",headers:{"Content-Type":"application/json",Origin:origin,...(cookie?{Cookie:cookie}:{})},body:JSON.stringify(data)});
  const json=await r.json().catch(()=>({}));return {status:r.status,json,cookie:r.headers.get("set-cookie")?.split(";")[0]};
 }
-function tokenFromMessage(i){const source=messages[i]??"";const found=source.match(/(?:verify\?token=|verify\/\?token=|mot-de-passe\/\?token=)([a-f0-9]{64})/);if(!found)throw Error("Aucun jeton trouvé dans le message SMTP (réception="+messages.length+")");return found[1]}
+function tokenFromMessage(i){const source=messages[i]??"";const found=source.match(/[?&]token=([a-f0-9]{64})/);if(!found)throw Error("Aucun jeton trouvé dans le message SMTP (réception="+messages.length+")");return found[1]}
 try{
  await new Promise((resolve,reject)=>smtp.listen(2525,"127.0.0.1",e=>e?reject(e):resolve()));
  await client.connect();
@@ -52,6 +52,7 @@ try{
  console.log("SMTP PASS: inscription, email, jeton unique, connexion vérifiée, récupération, invalidation des sessions, CSRF");
 }finally{
  if(child){child.kill("SIGTERM");await delay(1200)}
+ await client.query("DELETE FROM account_tokens WHERE user_id IN (SELECT id FROM users WHERE email=$1)",[email]).catch(()=>{});
  await client.query("DELETE FROM users WHERE email=$1",[email]).catch(()=>{});
  await client.end().catch(()=>{});
  await new Promise(resolve=>smtp.close(()=>resolve())).catch(()=>{});
