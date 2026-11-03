@@ -80,6 +80,7 @@ export default function AdminInventoryPanel(){
      <small>Commission {(item.commission_bps/100).toFixed(2)} % · prix {(item.list_price_cents/100).toFixed(2)} €</small>
      <p className="product-secondary">Réception : {item.receipt_reference??"manquante"} · Qualité : {item.quality_verdict??"à réaliser"} · Mandat : {item.mandate_accepted?"accepté":"en attente"}</p>
      {item.public_photo_url&&<p className="product-secondary">Photo publique enregistrée.</p>}
+     {item.state==="intake"&&!item.mandate_accepted&&<p className="demo-note">Réception bloquée : attendre le consentement au mandat du déposant.</p>}
      {editing&&action&&<form className="consignment-form" onSubmit={e=>{e.preventDefault();void operation(item,action)}}>
       {action==="receive"&&<>
        <label>Référence de bordereau<input required minLength={4} maxLength={80} value={draft.proofReference} onChange={e=>update("proofReference",e.target.value)}/></label>
@@ -106,7 +107,7 @@ export default function AdminInventoryPanel(){
      </form>}
     </div>
     <div className="admin-actions">
-     {action&&!editing&&<button type="button" disabled={busy} onClick={()=>open(item,action)}>{action==="receive"?"Réceptionner":action==="quality"?"Contrôler":"Publier"}</button>}
+     {action&&!editing&&<button type="button" disabled={busy||(action==="receive"&&!item.mandate_accepted)} onClick={()=>open(item,action)}>{action==="receive"?"Réceptionner":action==="quality"?"Contrôler":"Publier"}</button>}
      {(possible[item.state]??[]).map(state=><button key={state} disabled={busy} type="button" onClick={()=>void transition(item,state)}>{state==="returned"?"Retourner":state==="reserved"?"Réserver":state==="listed"?"Remettre en vente":"Marquer vendu"}</button>)}
     </div>
    </article>
