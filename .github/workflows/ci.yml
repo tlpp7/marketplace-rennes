@@ -5,6 +5,26 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: rennfripes
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: rennfripes
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rennfripes -d rennfripes"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://rennfripes:ci-only-password@127.0.0.1:5432/rennfripes
+      SESSION_SECRET: ci-secret-not-for-real-accounts-random-placeholder
+      SEO_PUBLIC: "false"
+      ACCOUNTS_ENABLED: "true"
+      ALLOW_UNVERIFIED_LOCAL: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -14,4 +34,23 @@ jobs:
       - run: npm run check:products
       - run: npm run check:profiles
       - run: npm run lint
+      - name: Apply SQL migrations
+        run: |
+          for f in infra/sql/0*.sql; do
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+      - run: npm run db:check
       - run: npm run build
+      - name: Smoke test health and authentication
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > /tmp/rennfripes-next.log 2>&1 &
+          PID=$!
+          trap 'kill "$PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:3000/api/health
+          curl -fsS -o /dev/null http://127.0.0.1:3000/compte/
+          curl -fsS -o /dev/null http://127.0.0.1:3000/mon-espace/
+          node scripts/smoke-auth.mjs
