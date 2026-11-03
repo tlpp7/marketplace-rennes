@@ -20,7 +20,7 @@ function tokenFromMessage(i){const source=(messages[i]??"").replace(/=\r?\n/g,""
 try{
  await new Promise((resolve,reject)=>smtp.listen(2525,"127.0.0.1",e=>e?reject(e):resolve()));
  await client.connect();
- child=spawn(process.execPath,["node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port","3001"],{env:{...process.env,NODE_ENV:"production",SMTP_HOST:"127.0.0.1",SMTP_PORT:"2525",SMTP_SECURE:"false",SMTP_USER:"test",SMTP_PASSWORD:"test",SMTP_FROM:"RennFripes <test@example.invalid>",ACCOUNTS_ENABLED:"true",ALLOW_UNVERIFIED_LOCAL:"false"},stdio:["ignore","pipe","pipe"]});
+ child=spawn(process.execPath,["node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port","3001"],{env:{...process.env,NODE_ENV:"production",APP_ORIGIN:"https://127.0.0.1:3001",SMTP_HOST:"127.0.0.1",SMTP_PORT:"2525",SMTP_SECURE:"false",SMTP_USER:"test",SMTP_PASSWORD:"test",SMTP_FROM:"RennFripes <test@example.invalid>",ACCOUNTS_ENABLED:"true",ALLOW_UNVERIFIED_LOCAL:"false"},stdio:["ignore","pipe","pipe"]});
  child.stdout.on("data",v=>{childLog=(childLog+v.toString()).slice(-4000)});
  child.stderr.on("data",v=>{childLog=(childLog+v.toString()).slice(-4000)});
  let ready=false;for(let i=0;i<70;i++){try{const r=await fetch(origin+"/api/health/");if(r.ok){ready=true;break}}catch{}await delay(1000)}
