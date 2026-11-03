@@ -1,0 +1,2 @@
+import {sql} from "@/lib/db";import {currentAdmin} from "@/lib/admin";import {fail} from "@/lib/security";export const runtime="nodejs";
+export async function GET(){if(!await currentAdmin())return fail("Accès refusé",403);const reviews=await sql("SELECT r.id,r.rating,r.body,r.visibility,r.created_at,a.handle AS author,s.handle AS subject FROM reviews r JOIN users a ON a.id=r.author_id JOIN users s ON s.id=r.subject_id ORDER BY r.created_at DESC LIMIT 100");return Response.json({reviews})}
