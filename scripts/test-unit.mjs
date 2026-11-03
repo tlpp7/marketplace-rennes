@@ -28,4 +28,13 @@ test("V0.2 requires reception, quality, mandate and publication",()=>{
  const catalog=fs.readFileSync("modules/catalog/live.ts","utf8");
  assert.match(catalog,/i\.state='listed'/);
  assert.match(catalog,/consignment_mandates/);
+ const mandate=fs.readFileSync("app/api/consignments/[id]/mandate/route.ts","utf8");
+ assert.match(mandate,/previewSha256/);
+ const evidence=fs.readFileSync("infra/sql/007_v02_hardening.sql","utf8");
+ assert.match(evidence,/prevent_consignment_evidence_rewrite/);
+ assert.match(evidence,/consignment_positive_checks/);
+ const transition=fs.readFileSync("app/api/admin/inventory/[id]/route.ts","utf8");
+ assert.doesNotMatch(transition,/reserved:\s*\["listed","sold"\]/);
+ const operations=fs.readFileSync("app/api/admin/inventory/[id]/operations/route.ts","utf8");
+ assert.match(operations,/existsSync/);
 });
