@@ -79,3 +79,15 @@ Cette migration crée quatre tables de preuves et un déclencheur de validation,
 - Révision juridique, RGPD et règles de conservation des preuves.
 - Validation du fournisseur d'images / des URL accessibles publiquement.
 - V0.3 : paiement, allocation de stock lors du paiement, annulations, remboursement, livraison et suivi.
+
+## Renforcement de l'intégrité — migration 007
+
+- La commande `npm run db:migrate:v02` applique **006 puis 007** dans une transaction : tables de preuves, transitions contraintes, archives non modifiables et exigence des quatre vérifications pour un contrôle qualité positif.
+- Le mandat présenté au déposant porte une empreinte SHA-256. L'API refuse l'acceptation si le contenu affiché n'est plus celui proposé au moment du consentement.
+- Les images locales publiées doivent exister dans `public/consignments/` au moment de la publication. Les photos externes exigent un hôte HTTPS explicitement autorisé.
+- Le changement manuel du statut de stock vers `sold` est bloqué dans l'interface et l'API tant que la confirmation des paiements n'est pas implémentée.
+- `npm run db:check` exige la présence des cinq triggers de workflow et de protection.
+- `RF_V02_TEST_MODE=true npm run test:v02:db` exige **un nom de base contenant « test »**. Les tests utilisent une transaction annulée ; les séquences PostgreSQL ne sont pas annulées.
+- Avant la production, inspecter les anciens rapports qualité : la contrainte `consignment_positive_checks` est installée `NOT VALID` pour éviter de bloquer la migration à cause d'anciens enregistrements. Elle protège néanmoins les nouvelles écritures.
+
+Ces protections n'équivalent pas à une signature électronique qualifiée, à une preuve contradictoire de remise physique, ni à une validation juridique du contrat.
