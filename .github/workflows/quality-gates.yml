@@ -1,0 +1,35 @@
+name: Quality Gates P0 P1 P2
+on:
+  push:
+  pull_request:
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npm audit --omit=dev --audit-level=high
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: node --test scripts/test-unit.mjs
+  browser-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npx --yes --package @playwright/test playwright install chromium
+      - run: npx --yes --package @playwright/test playwright test
+        env:
+          CI: "true"
