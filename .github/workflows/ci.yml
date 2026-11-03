@@ -11,16 +11,16 @@ jobs:
         env:
           POSTGRES_USER: rennfripes
           POSTGRES_PASSWORD: ci-only-password
-          POSTGRES_DB: rennfripes
+          POSTGRES_DB: rennfripes_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U rennfripes -d rennfripes"
+          --health-cmd "pg_isready -U rennfripes -d rennfripes_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://rennfripes:ci-only-password@127.0.0.1:5432/rennfripes
+      DATABASE_URL: postgresql://rennfripes:ci-only-password@127.0.0.1:5432/rennfripes_test
       SESSION_SECRET: ci-secret-not-for-real-accounts-random-placeholder
       SEO_PUBLIC: "false"
       ACCOUNTS_ENABLED: "true"
