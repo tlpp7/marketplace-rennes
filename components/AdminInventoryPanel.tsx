@@ -13,7 +13,7 @@ type Draft={proofReference:string;location:string;notes:string;physicallyReceive
 const blank:Draft={proofReference:"",location:"",notes:"",physicallyReceived:false,
  verdict:"passed",labelMatches:false,clean:false,conditionMatches:false,
  photoVerified:false,size:"",photoUrl:"",description:""};
-const possible:Record<string,string[]>={ready:["returned"],listed:["reserved","returned"],reserved:["listed","sold"]};
+const possible:Record<string,string[]>={ready:["returned"],listed:["reserved","returned"],reserved:["listed"]};
 export default function AdminInventoryPanel(){
  const [items,setItems]=useState<Item[]>([]),[notice,setNotice]=useState(""),[loaded,setLoaded]=useState(false);
  const [active,setActive]=useState<string|null>(null),[draft,setDraft]=useState<Draft>(blank),[busy,setBusy]=useState(false);
