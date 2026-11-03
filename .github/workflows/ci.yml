@@ -40,6 +40,8 @@ jobs:
             psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
           done
       - run: npm run db:check
+      - name: V0.2 stock evidence PostgreSQL regression
+        run: RF_V02_TEST_MODE=true npm run test:v02:db
       - name: V0.2 PostgreSQL visibility regression
         run: node --test scripts/check-directory-v02.mjs
       - name: V0.2 fixture validation
