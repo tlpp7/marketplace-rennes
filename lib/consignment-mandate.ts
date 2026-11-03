@@ -14,9 +14,7 @@ export function mandatePreview(item:Item){
  const c=mandateConfig();
  const price=(Number(item.list_price_cents)/100).toFixed(2);
  const commission=(Number(item.commission_bps)/100).toFixed(2);
- return {
-  version:c.version,
-  text:[
+ const text=[
    "MANDAT DE DÉPÔT-VENTE — RENN’FRIPES",
    "Exploitant : "+c.name+" — SIRET "+c.siret,
    "Adresse de l'exploitant : "+c.address,
@@ -26,9 +24,8 @@ export function mandatePreview(item:Item){
    "Version des conditions : "+c.version,
    "",
    c.terms
-  ].join("\n"),
-  sha256:""
- };
+  ].join("\n");
+ return {version:c.version,text,sha256:createHash("sha256").update(text,"utf8").digest("hex")};
 }
 export function finalizedMandate(item:Item,depositorName:string,depositorAddress:string){
  const preview=mandatePreview(item);
