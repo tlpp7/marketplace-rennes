@@ -43,7 +43,7 @@ jobs:
       - run: npm run build
       - name: Smoke test health and authentication
         run: |
-          npm run start -- --hostname 127.0.0.1 --port 3000 > /tmp/rennfripes-next.log 2>&1 &
+          npm run dev -- --hostname 127.0.0.1 --port 3000 > /tmp/rennfripes-next.log 2>&1 &
           PID=$!
           trap 'kill "$PID" 2>/dev/null || true' EXIT
           for i in $(seq 1 40); do
