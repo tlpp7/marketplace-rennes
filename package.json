@@ -15,7 +15,10 @@
     "test:unit": "node --test scripts/test-unit.mjs",
     "test:v02:production": "node scripts/validate-v02-production.mjs",
     "test:v02:data": "node --test scripts/check-profiles-v02.mjs",
-    "test:v02:browser": "playwright test tests/e2e/profiles-v02.spec.mjs --workers=1"
+    "test:v02:browser": "playwright test tests/e2e/profiles-v02.spec.mjs --workers=1",
+    "test:p0": "node --test tests/validation/p0.test.mjs",
+    "test:p1": "node --test tests/validation/p1.test.mjs",
+    "test:security": "npm run test:p0 && npm run test:p1 && node --test tests/integration/messages-access.test.mjs"
   },
   "dependencies": {
     "next": "^16.4.4",
