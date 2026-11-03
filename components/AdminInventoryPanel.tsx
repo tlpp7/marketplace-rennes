@@ -4,6 +4,8 @@ type Item={
  id:string;sku:string;state:string;location_code:string;title:string;deposant:string;
  list_price_cents:number;commission_bps:number;receipt_reference:string|null;
  quality_verdict:"passed"|"rejected"|null;mandate_accepted:boolean;public_photo_url:string|null;
+ receipt_document:string|null;receipt_sha256:string|null;quality_checks:Record<string,boolean>|null;
+ quality_notes:string|null;mandate_document:string|null;mandate_sha:string|null;
 };
 type Draft={proofReference:string;location:string;notes:string;physicallyReceived:boolean;
  verdict:"passed"|"rejected";labelMatches:boolean;clean:boolean;conditionMatches:boolean;
@@ -80,6 +82,9 @@ export default function AdminInventoryPanel(){
      <small>Commission {(item.commission_bps/100).toFixed(2)} % · prix {(item.list_price_cents/100).toFixed(2)} €</small>
      <p className="product-secondary">Réception : {item.receipt_reference??"manquante"} · Qualité : {item.quality_verdict??"à réaliser"} · Mandat : {item.mandate_accepted?"accepté":"en attente"}</p>
      {item.public_photo_url&&<p className="product-secondary">Photo publique enregistrée.</p>}
+     {item.receipt_document&&<details><summary>Attestation de réception archivée</summary><pre className="mandate-document">{item.receipt_document}</pre><small>SHA-256 : {item.receipt_sha256}</small></details>}
+     {item.quality_verdict&&<details><summary>Rapport du contrôle qualité</summary><p>Résultat : {item.quality_verdict}</p><pre className="mandate-document">{JSON.stringify(item.quality_checks,null,2)}</pre><p>{item.quality_notes}</p></details>}
+     {item.mandate_document&&<details><summary>Mandat consenti archivé</summary><pre className="mandate-document">{item.mandate_document}</pre><small>SHA-256 : {item.mandate_sha}</small></details>}
      {item.state==="intake"&&!item.mandate_accepted&&<p className="demo-note">Réception bloquée : attendre le consentement au mandat du déposant.</p>}
      {editing&&action&&<form className="consignment-form" onSubmit={e=>{e.preventDefault();void operation(item,action)}}>
       {action==="receive"&&<>
