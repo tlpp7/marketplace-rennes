@@ -24,7 +24,8 @@ try{
  // Test a genuine third-party session, not merely an invalid cookie.
  const outsider=await post("/api/auth/register/",{handle:"tiers_"+nonce,email:"tiers_"+nonce+"@example.invalid",password:"TestPassword_123456"});
  const forbidden=await get("/api/messages/?conversationId="+conversation.result.conversationId,outsider.cookie);
- if(forbidden.status!==200||forbidden.data.messages.length!==0)throw Error("Nonparticipant read not isolated");
+ const missing=await get("/api/messages/?conversationId=00000000-0000-4000-8000-000000000000",outsider.cookie);
+ if(forbidden.status!==404||missing.status!==404||JSON.stringify(forbidden.data)!==JSON.stringify(missing.data))throw Error("Nonparticipant read not isolated");
  // Test appointment creation and provider approval/decline.
  const provider=await post("/api/auth/register/",{handle:"couture_"+nonce,email:"couture_"+nonce+"@example.invalid",password:"TestPassword_123456"});
  const providerMe=await get("/api/me/",provider.cookie);
