@@ -24,7 +24,7 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
  try{data=await body(request)}catch{return fail("Données invalides",400)}
  const depositorName=stringField(data.depositorName,160),depositorAddress=stringField(data.depositorAddress,350);
  if(data.accept!==true||depositorName.length<4||depositorAddress.length<8||
- !Number.isSafeInteger(data.priceCents)||!Number.isSafeInteger(data.commissionBps)||
+ typeof data.priceCents!=="number"||!Number.isSafeInteger(data.priceCents)||typeof data.commissionBps!=="number"||!Number.isSafeInteger(data.commissionBps)||
  typeof data.version!=="string")return fail("Identité et consentement explicite requis",400);
  const {id}=await params;
  const client=await db.connect();
