@@ -54,3 +54,7 @@ jobs:
           curl -fsS -o /dev/null http://127.0.0.1:3000/compte/
           curl -fsS -o /dev/null http://127.0.0.1:3000/mon-espace/
           node scripts/smoke-auth.mjs
+      - name: Email verification, recovery and security smoke test (local SMTP)
+        run: node scripts/smoke-email.mjs
+      - name: Dependency vulnerability audit
+        run: npm audit --omit=dev --audit-level=high
