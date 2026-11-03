@@ -12,7 +12,10 @@
     "check:profiles": "node scripts/check-profiles.mjs",
     "db:check": "node scripts/check-database.mjs",
     "test:e2e": "playwright test",
-    "test:unit": "node --test scripts/test-unit.mjs"
+    "test:unit": "node --test scripts/test-unit.mjs",
+    "test:v02:production": "node scripts/validate-v02-production.mjs",
+    "test:v02:data": "node --test scripts/check-profiles-v02.mjs",
+    "test:v02:browser": "playwright test tests/e2e/profiles-v02.spec.mjs --workers=1"
   },
   "dependencies": {
     "next": "^15.5.0",
