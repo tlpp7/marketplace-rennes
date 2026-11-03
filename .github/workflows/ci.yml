@@ -48,6 +48,12 @@ jobs:
         run: node --test scripts/check-profiles-v02.mjs
       - run: npm run build
       - name: Smoke test health and authentication
+        env:
+          CONSIGNMENT_OPERATOR_NAME: "Rennfripes CI"
+          CONSIGNMENT_OPERATOR_ADDRESS: "1 rue fictive, Rennes (CI uniquement)"
+          CONSIGNMENT_OPERATOR_SIRET: "00000000000000"
+          CONSIGNMENT_TERMS_VERSION: "ci-test-1"
+          CONSIGNMENT_TERMS_TEXT: "Conditions fictives pour les tests automatisés uniquement. Aucun dépôt ni paiement réel n'est autorisé dans cet environnement."
         run: |
           npm run dev -- --hostname 127.0.0.1 --port 3000 > /tmp/rennfripes-next.log 2>&1 &
           PID=$!
@@ -60,6 +66,7 @@ jobs:
           curl -fsS -o /dev/null http://127.0.0.1:3000/compte/
           curl -fsS -o /dev/null http://127.0.0.1:3000/mon-espace/
           node scripts/smoke-auth.mjs
+          RF_V02_TEST_MODE=true node scripts/smoke-v02.mjs
       - name: Email verification, recovery and security smoke test (local SMTP)
         run: node scripts/smoke-email.mjs
       - name: Dependency vulnerability audit
