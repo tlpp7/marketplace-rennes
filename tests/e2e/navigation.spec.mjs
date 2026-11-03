@@ -15,6 +15,7 @@ test("account screen and password recovery",async({page})=>{
 });
 test("anonymous member screen offers login",async({page})=>{
  await page.goto("/mon-espace/");
+ await page.getByRole("button",{name:/Échanges & profil/i}).click();
  await expect(page.getByRole("link",{name:/connexion/i})).toBeVisible();
 });
 test("mobile navigation does not cause horizontal scrolling",async({page})=>{
