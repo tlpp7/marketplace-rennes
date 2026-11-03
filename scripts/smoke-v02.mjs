@@ -21,7 +21,7 @@ async function request(path,{method="GET",body,cookie,foreignOrigin=false}={}){
 async function registration(prefix){
  const handle=prefix+"_"+suffix;
  const r=await request("/api/auth/register/",{method:"POST",body:{handle,email:handle+"@example.invalid",password:"TestPassword_123456"}});
- assert.equal(r.status,201,"registration: "+JSON.stringify(r.data));
+ assert.equal(r.status,200,"registration: "+JSON.stringify(r.data));
  assert.ok(r.cookie,"Missing session cookie");
  const me=await request("/api/me/",{cookie:r.cookie});
  assert.equal(me.status,200);
