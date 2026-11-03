@@ -1,0 +1,2 @@
+import {sql} from "@/lib/db";import {currentAdmin} from "@/lib/admin";import {fail} from "@/lib/security";export const runtime="nodejs";
+export async function GET(){if(!await currentAdmin())return fail("Accès refusé",403);const profiles=await sql("SELECT p.user_id,u.handle,p.kind,p.city,p.bio,p.approved FROM member_profiles p JOIN users u ON u.id=p.user_id WHERE p.kind IN ('reseller','care') ORDER BY p.approved,p.city LIMIT 100");return Response.json({profiles})}
