@@ -14,7 +14,7 @@ export async function GET(_request:Request,{params}:{params:Promise<{id:string}>
   const existing=await sql("SELECT document_text,document_sha256,accepted_at,terms_version FROM consignment_mandates WHERE item_id=$1 AND owner_id=$2",[item.id,user.id]);
   if(existing.length)return Response.json({accepted:true,mandate:existing[0]});
   const preview=mandatePreview(item);
-  return Response.json({accepted:false,preview:preview.text,version:preview.version,priceCents:item.list_price_cents,commissionBps:item.commission_bps});
+  return Response.json({accepted:false,preview:preview.text,previewSha256:preview.sha256,version:preview.version,priceCents:item.list_price_cents,commissionBps:item.commission_bps});
  }catch{return fail("Mandat non configuré ou base indisponible",503)}
 }
 export async function POST(request:Request,{params}:{params:Promise<{id:string}>}){
@@ -25,7 +25,7 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
  const depositorName=stringField(data.depositorName,160),depositorAddress=stringField(data.depositorAddress,350);
  if(data.accept!==true||depositorName.length<4||depositorAddress.length<8||
  typeof data.priceCents!=="number"||!Number.isSafeInteger(data.priceCents)||typeof data.commissionBps!=="number"||!Number.isSafeInteger(data.commissionBps)||
- typeof data.version!=="string")return fail("Identité et consentement explicite requis",400);
+ typeof data.version!=="string"||typeof data.previewSha256!=="string"||!/^[a-f0-9]{64}$/.test(data.previewSha256))return fail("Identité et consentement explicite requis",400);
  const {id}=await params;
  const client=await db.connect();
  try{
@@ -34,7 +34,8 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
   if(!result.rows.length){await client.query("ROLLBACK");return fail("Dépôt introuvable",404)}
   const item=result.rows[0] as Item;
   const terms=finalizedMandate(item,depositorName,depositorAddress);
-  if(data.version!==terms.version||data.priceCents!==item.list_price_cents||data.commissionBps!==item.commission_bps){
+  const currentPreview=mandatePreview(item);
+  if(data.previewSha256!==currentPreview.sha256||data.version!==terms.version||data.priceCents!==item.list_price_cents||data.commissionBps!==item.commission_bps){
    await client.query("ROLLBACK");return fail("Conditions modifiées : recharge le mandat",409);
   }
   const already=await client.query("SELECT item_id FROM consignment_mandates WHERE item_id=$1",[item.id]);
