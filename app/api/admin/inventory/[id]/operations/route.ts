@@ -30,6 +30,8 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
   let detail="";
   if(action==="receive"){
    if(item.state!=="intake"){await client.query("ROLLBACK");return fail("Réception déjà traitée",409)}
+   const mandate=await client.query("SELECT item_id FROM consignment_mandates WHERE item_id=$1",[id]);
+   if(!mandate.rowCount){await client.query("ROLLBACK");return fail("Le déposant doit accepter le mandat avant la réception",409)}
    const reference=stringField(d.proofReference,80),location=stringField(d.location,48),notes=stringField(d.notes,1000);
    if(d.physicallyReceived!==true||reference.length<4||location.length<2){
     await client.query("ROLLBACK");return fail("Confirme la réception, la référence du bordereau et l'emplacement",400);
