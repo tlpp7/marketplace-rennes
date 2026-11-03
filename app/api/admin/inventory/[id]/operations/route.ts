@@ -1,11 +1,14 @@
 import {createHash} from "node:crypto";
+import {existsSync} from "node:fs";
+import {join} from "node:path";
 import {db} from "@/lib/db";
 import {currentAdmin} from "@/lib/admin";
 import {body,fail,stringField,trustedRequest} from "@/lib/security";
 export const runtime="nodejs";
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function validPhoto(url:string){
- if(/^\/consignments\/[a-zA-Z0-9/_-]+\.(jpg|jpeg|png|webp)$/i.test(url)&&!url.includes(".."))return true;
+ if(/^\/consignments\/[a-zA-Z0-9/_-]+\.(jpg|jpeg|png|webp)$/i.test(url)&&!url.includes(".."))
+  return existsSync(join(process.cwd(),"public",url.slice(1)));
  try{
   const u=new URL(url);
   const hosts=(process.env.CONSIGNMENT_MEDIA_HOSTS??"").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
