@@ -23,12 +23,35 @@ jobs:
       - run: node --test scripts/test-unit.mjs
   browser-tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: rennfripes
+          POSTGRES_USER: rennfripes
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rennfripes -d rennfripes"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://rennfripes:ci-only-password@127.0.0.1:5432/rennfripes
+      SESSION_SECRET: ci-secret-for-browser-tests-not-production
+      ACCOUNTS_ENABLED: "false"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - run: npm install
+      - name: Apply database schema
+        run: |
+          for f in infra/sql/0*.sql; do
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
         env:
