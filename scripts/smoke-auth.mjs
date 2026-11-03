@@ -21,9 +21,31 @@ try{
  await post("/api/messages/",{conversationId:conversation.result.conversationId,message:"Bonjour, cette pièce est-elle disponible ?"},b.cookie);
  const received=await get("/api/messages/?conversationId="+conversation.result.conversationId,a.cookie);
  if(received.data.messages.length!==1)throw Error("Messaging failed");
- const forbidden=await get("/api/messages/?conversationId="+conversation.result.conversationId,"rf_session=invalid");
- if(forbidden.status!==401)throw Error("Unauthorized read allowed");
- console.log("V0.3 PASS: registration, session, follow, conversation, message isolation");
+ // Test a genuine third-party session, not merely an invalid cookie.
+ const outsider=await post("/api/auth/register/",{handle:"tiers_"+nonce,email:"tiers_"+nonce+"@example.invalid",password:"TestPassword_123456"});
+ const forbidden=await get("/api/messages/?conversationId="+conversation.result.conversationId,outsider.cookie);
+ if(forbidden.status!==200||forbidden.data.messages.length!==0)throw Error("Nonparticipant read not isolated");
+ // Test appointment creation and provider approval/decline.
+ const provider=await post("/api/auth/register/",{handle:"couture_"+nonce,email:"couture_"+nonce+"@example.invalid",password:"TestPassword_123456"});
+ const providerMe=await get("/api/me/",provider.cookie);
+ await client.query("UPDATE member_profiles SET kind='care',approved=true WHERE user_id=$1",[providerMe.data.user.id]);
+ const appointment=await post("/api/appointments/",{providerHandle:"couture_"+nonce,startsAt:new Date(Date.now()+172800000).toISOString(),note:"Test de retouche"},b.cookie);
+ const appointmentId=appointment.result.request.id;
+ const response=await fetch(origin+"/api/appointments/"+appointmentId+"/",{method:"PATCH",headers:{"Content-Type":"application/json",Origin:origin,Cookie:provider.cookie},body:JSON.stringify({action:"accept"})});
+ if(!response.ok)throw Error("Provider cannot accept appointment");
+ const appointments=await get("/api/appointments/",b.cookie);
+ if(!appointments.data.appointments.some(x=>x.id===appointmentId&&x.status==="accepted"))throw Error("Appointment transition failed");
+ // Reviews must be refused without a verified transaction.
+ const review=await fetch(origin+"/api/reviews/",{method:"POST",headers:{"Content-Type":"application/json",Origin:origin,Cookie:b.cookie},body:JSON.stringify({interactionId:"00000000-0000-4000-8000-000000000001",rating:5,text:"Le produit est conforme à la description"})});
+ if(review.status!==403)throw Error("Unverified review accepted");
+ // Check follow removal.
+ const unfollow=await fetch(origin+"/api/follows/",{method:"DELETE",headers:{"Content-Type":"application/json",Origin:origin,Cookie:b.cookie},body:JSON.stringify({handle:"vendeur_"+nonce})});
+ if(!unfollow.ok)throw Error("Unfollow failed");
+ const afterFollow=await get("/api/follows/",b.cookie);
+ if(afterFollow.data.follows.length)throw Error("Follow not removed");
+ const forbiddenAnonymous=await get("/api/messages/?conversationId="+conversation.result.conversationId,"rf_session=invalid");
+ if(forbiddenAnonymous.status!==401)throw Error("Unauthorized anonymous read allowed");
+ console.log("V0.3 PASS: accounts, follows, access isolation, messaging, appointments and unverified-review refusal");
 }finally{
  await client.query("DELETE FROM users WHERE email LIKE $1",["%"+nonce+"@example.invalid"]).catch(()=>{});
  await client.end();
