@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import pg from "pg";
 import {randomBytes} from "node:crypto";
+import {mkdir,writeFile,unlink} from "node:fs/promises";
+import {join} from "node:path";
 if(process.env.RF_V02_TEST_MODE!=="true")throw Error("RF_V02_TEST_MODE=true requis sur une base de test isolée");
 if(!process.env.DATABASE_URL)throw Error("DATABASE_URL requis");
 const origin=process.env.RF_V02_TEST_BASE??"http://127.0.0.1:3000";
@@ -9,7 +11,7 @@ if(!["localhost","127.0.0.1","[::1]"].includes(host))throw Error("Ce test exige 
 const client=new pg.Client({connectionString:process.env.DATABASE_URL});
 const suffix=randomBytes(5).toString("hex");
 let requestId=null,itemId=null;
-const userIds=[];
+const fixturePath=join(process.cwd(),"public","consignments","test-ci-"+suffix+".png");
 async function request(path,{method="GET",body,cookie,foreignOrigin=false}={}){
  const headers={};
  if(cookie)headers.Cookie=cookie;
@@ -25,11 +27,15 @@ async function registration(prefix){
  assert.ok(r.cookie,"Missing session cookie");
  const me=await request("/api/me/",{cookie:r.cookie});
  assert.equal(me.status,200);
- userIds.push(me.data.user.id);
+
  return {cookie:r.cookie,handle,id:me.data.user.id};
 }
 await client.connect();
 try{
+ const databaseName=(await client.query("SELECT current_database() AS name")).rows[0].name;
+ if(!/test/i.test(databaseName))throw Error("Ce smoke test exige une base isolée dont le nom contient test");
+ await mkdir(join(process.cwd(),"public","consignments"),{recursive:true});
+ await writeFile(fixturePath,Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+nmWQAAAAASUVORK5CYII=","base64"));
  const member=await registration("v02seller");
  const admin=await registration("v02admin");
  await client.query("INSERT INTO platform_admins(user_id) VALUES($1)",[admin.id]);
@@ -50,7 +56,7 @@ try{
  const mandate=await request("/api/consignments/"+requestId+"/mandate/",{cookie:member.cookie});
  assert.equal(mandate.status,200,"mandate preview: "+JSON.stringify(mandate.data));
  assert.equal(mandate.data.accepted,false);
- const accepted=await request("/api/consignments/"+requestId+"/mandate/",{method:"POST",cookie:member.cookie,body:{accept:true,depositorName:"Déposant de test",depositorAddress:"15 rue du test, Rennes",version:mandate.data.version,priceCents:mandate.data.priceCents,commissionBps:mandate.data.commissionBps}});
+ const accepted=await request("/api/consignments/"+requestId+"/mandate/",{method:"POST",cookie:member.cookie,body:{accept:true,depositorName:"Déposant de test",depositorAddress:"15 rue du test, Rennes",version:mandate.data.version,previewSha256:mandate.data.previewSha256,priceCents:mandate.data.priceCents,commissionBps:mandate.data.commissionBps}});
  assert.equal(accepted.status,201,"mandate acceptance: "+JSON.stringify(accepted.data));
  assert.match(accepted.data.sha256,/^[a-f0-9]{64}$/);
  const receipt=await request("/api/admin/inventory/"+itemId+"/operations/",{method:"POST",cookie:admin.cookie,body:{action:"receive",physicallyReceived:true,proofReference:"TEST-RECEPTION",location:"ETAGE-1",notes:"Remise en mains propres pour le test"}});
@@ -62,7 +68,7 @@ try{
  assert.equal(quality.status,200,"quality: "+JSON.stringify(quality.data));
  const prematurePublication=await request("/api/admin/inventory/"+itemId+"/",{method:"PATCH",cookie:admin.cookie,body:{state:"listed",location:"ETAGE-1"}});
  assert.equal(prematurePublication.status,409,"Publication bypass must fail");
- const publication=await request("/api/admin/inventory/"+itemId+"/operations/",{method:"POST",cookie:admin.cookie,body:{action:"publish",size:"M",photoUrl:"/consignments/test-ci.jpg",description:"Article fictif de test, jamais destiné à la vente réelle."}});
+ const publication=await request("/api/admin/inventory/"+itemId+"/operations/",{method:"POST",cookie:admin.cookie,body:{action:"publish",size:"M",photoUrl:"/consignments/test-ci-"+suffix+".png",description:"Article fictif de test, jamais destiné à la vente réelle."}});
  assert.equal(publication.status,200,"publication: "+JSON.stringify(publication.data));
  const catalog=await request("/catalogue/");
  assert.equal(catalog.status,200,"Public catalogue should be reachable");
@@ -76,15 +82,8 @@ try{
  assert.match(own.receipt_sha256,/^[a-f0-9]{64}$/);
  console.log("V0.2 PASS : demande, mandat, réception, qualité, publication et accès propriétaire");
 }finally{
- try{
-  if(itemId){
-   for(const table of ["stock_movements","consignment_publications","consignment_quality_reports","consignment_receipts","consignment_mandates","consignment_inventory"]){
-    const column=table==="consignment_inventory"?"id":"item_id";
-    await client.query("DELETE FROM "+table+" WHERE "+column+"=$1",[itemId]);
-   }
-  }
-  if(requestId)await client.query("DELETE FROM consignment_requests WHERE id=$1",[requestId]);
-  for(const id of userIds)await client.query("DELETE FROM users WHERE id=$1",[id]);
- }catch(error){console.error("Nettoyage CI incomplet :",error instanceof Error?error.message:"erreur")}
+ // Proof documents are intentionally immutable. This test only runs against
+ // an isolated database: keep the synthetic rows and dispose of that database.
+ await unlink(fixturePath).catch(()=>{});
  await client.end();
 }
