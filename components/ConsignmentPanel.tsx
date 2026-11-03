@@ -24,7 +24,19 @@ export default function ConsignmentPanel(){
    const data=await r.json();setItems(data.requests??[]);
   }catch{setMessage("Liste des dépôts temporairement indisponible")}
  },[]);
- useEffect(()=>{void load()},[load]);
+ useEffect(()=>{
+  let cancelled=false;
+  async function initial(){
+   try{
+    const r=await fetch("/api/consignments",{cache:"no-store"});
+    if(!r.ok)return;
+    const data=await r.json();
+    if(!cancelled)setItems(data.requests??[]);
+   }catch{if(!cancelled)setMessage("Liste des dépôts temporairement indisponible")}
+  }
+  void initial();
+  return ()=>{cancelled=true};
+ },[]);
  async function submit(e:React.FormEvent){
   e.preventDefault();setBusy(true);
   try{
