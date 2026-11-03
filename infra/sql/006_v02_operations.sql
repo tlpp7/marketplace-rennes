@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS consignment_receipts (
  proof_reference varchar(80) NOT NULL CHECK (length(trim(proof_reference)) >= 4),
  location_code varchar(48) NOT NULL CHECK (length(trim(location_code)) >= 2),
  notes varchar(1000) NOT NULL DEFAULT '',
+ receipt_document text NOT NULL,
+ receipt_sha256 char(64) NOT NULL,
  received_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS consignment_quality_reports (
