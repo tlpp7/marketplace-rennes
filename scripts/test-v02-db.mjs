@@ -46,6 +46,12 @@ test("V0.2 : contraintes de workflow en PostgreSQL (transaction annulée)",async
   await denied("DELETE FROM consignment_receipts WHERE item_id=$1");
   const found=await client.query("SELECT state FROM consignment_inventory WHERE id=$1",[item.id]);
   assert.equal(found.rows[0].state,"listed");
+  const live=async()=>client.query("SELECT i.sku FROM consignment_inventory i JOIN consignment_publications p ON p.item_id=i.id JOIN consignment_mandates m ON m.item_id=i.id JOIN consignment_receipts rc ON rc.item_id=i.id JOIN consignment_quality_reports q ON q.item_id=i.id AND q.verdict='passed' WHERE i.state='listed' AND i.id=$1",[item.id]);
+  assert.equal((await live()).rowCount,1,"Un article publié avec toutes ses preuves doit être visible");
+  await client.query("UPDATE consignment_inventory SET state='reserved' WHERE id=$1",[item.id]);
+  assert.equal((await live()).rowCount,0,"Un article réservé ne doit plus apparaître");
+  await client.query("UPDATE consignment_inventory SET state='listed' WHERE id=$1",[item.id]);
+  assert.equal((await live()).rowCount,1,"L'article redevient visible après remise en stock");
   await client.query("ROLLBACK");
  }catch(e){await client.query("ROLLBACK").catch(()=>{});throw e}
  finally{await client.end()}
