@@ -19,7 +19,8 @@
     "test:p0": "node --test tests/validation/p0.test.mjs",
     "test:p1": "node --test tests/validation/p1.test.mjs",
     "test:security": "npm run test:p0 && npm run test:p1 && node --test tests/integration/messages-access.test.mjs",
-    "test:v02:db": "node --test scripts/test-v02-db.mjs"
+    "test:v02:db": "node --test scripts/test-v02-db.mjs",
+    "db:migrate:v02": "node scripts/migrate-v02.mjs"
   },
   "dependencies": {
     "next": "^16.4.4",
