@@ -13,7 +13,7 @@ test.describe("V0.2 — annuaire public et profils de démonstration",()=>{
   const search=page.getByRole("searchbox",{name:"Rechercher un profil"});
   const kind=page.getByLabel("Type de profil");
   await kind.selectOption("reseller");
-  await expect(page.getByRole("status",{name:""}).last()).toContainText("2 profils");
+  await expect(page.locator(".catalog-count")).toContainText("2 profils");
   await expect(page.locator(".profile-grid .profile-card")).toHaveCount(2);
   await kind.selectOption("care");
   await expect(page.locator(".profile-grid .profile-card")).toHaveCount(2);
