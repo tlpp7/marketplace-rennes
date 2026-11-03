@@ -3,7 +3,7 @@ import {body,currentUser,fail,stringField,trustedRequest} from "@/lib/security";
 
 export const runtime="nodejs";
 
-const conversationIdPattern=/^[0-9a-f-]{36}$/i;
+const conversationIdPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(request:Request){
  const u=await currentUser();
