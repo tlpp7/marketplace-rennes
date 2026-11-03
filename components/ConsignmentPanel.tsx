@@ -7,7 +7,7 @@ type RequestItem={
  quality_verdict:string|null;published_at:string|null
 };
 type Mandate={
- accepted:boolean;preview?:string;version?:string;priceCents?:number;commissionBps?:number;
+ accepted:boolean;preview?:string;previewSha256?:string;version?:string;priceCents?:number;commissionBps?:number;
  mandate?:{document_text:string;document_sha256:string;accepted_at:string;terms_version:string}
 };
 export default function ConsignmentPanel(){
@@ -65,7 +65,7 @@ export default function ConsignmentPanel(){
   try{
    const r=await fetch("/api/consignments/"+mandateId+"/mandate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
     accept:true,depositorName:legalName,depositorAddress:postalAddress,
-    version:mandate.version,priceCents:mandate.priceCents,commissionBps:mandate.commissionBps
+    version:mandate.version,previewSha256:mandate.previewSha256,priceCents:mandate.priceCents,commissionBps:mandate.commissionBps
    })});
    const data=await r.json();if(!r.ok)throw Error(data.error??"Acceptation refusée");
    setMessage("Mandat accepté et archivé. Empreinte SHA-256 : "+data.sha256);
@@ -92,7 +92,7 @@ export default function ConsignmentPanel(){
     <p>{(i.estimated_price_cents/100).toLocaleString("fr-FR",{style:"currency",currency:"EUR"})} · {i.status} {i.sku?" · "+i.sku:""}</p>
     {i.inventory_state&&<p className="product-secondary">Stock : {i.inventory_state} · Qualité : {i.quality_verdict??"en attente"} · Mandat : {i.mandate_accepted?"accepté":"non accepté"}</p>}
     {i.receipt_document&&<details><summary>Consulter mon attestation de réception</summary><pre className="mandate-document">{i.receipt_document}</pre><p>Empreinte SHA-256 : <code>{i.receipt_sha256}</code></p></details>}
-    {i.published_at&&<a href="/catalogue/" className="text-link">Voir le catalogue</a>}
+    {i.inventory_state==="listed"&&i.sku&&<a href={"/produit/"+i.sku.toLowerCase()+"/"} className="text-link">Voir la fiche de mon article</a>}
    </div>
    <div className="admin-actions">
     {i.status==="submitted"&&<button type="button" disabled={busy} onClick={()=>void withdraw(i.id)}>Retirer</button>}
