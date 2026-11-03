@@ -10,7 +10,9 @@
     "check:products": "node scripts/check-products.mjs",
     "check": "npm run check:products && npm run check:profiles && npm run lint && npm run build",
     "check:profiles": "node scripts/check-profiles.mjs",
-    "db:check": "node scripts/check-database.mjs"
+    "db:check": "node scripts/check-database.mjs",
+    "test:e2e": "playwright test",
+    "test:unit": "node --test scripts/test-unit.mjs"
   },
   "dependencies": {
     "next": "^15.5.0",
@@ -30,6 +32,7 @@
     "@types/pg": "^8.11.10",
     "@types/nodemailer": "^7.0.0",
     "smtp-server": "^3.13.6",
-    "@types/smtp-server": "^3.5.12"
+    "@types/smtp-server": "^3.5.12",
+    "@playwright/test": "^1.58.0"
   }
 }
