@@ -10,7 +10,9 @@ test("required migrations and route protections",()=>{
 });
 test("payment routes remain disabled by default",()=>{
  const content=fs.readFileSync("app/api/orders/route.ts","utf8");
- assert.match(content,/ORDERS_ENABLED/);
+ assert.match(content,/getServerConfig\(\)\.flags\.ordersEnabled/);
+ const config=fs.readFileSync("lib/config/env.ts","utf8");
+ assert.match(config,/ORDERS_ENABLED/);
 });
 
 test("V0.2 requires reception, quality, mandate and publication",()=>{
