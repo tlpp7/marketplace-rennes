@@ -1,5 +1,15 @@
 import {Pool} from "pg";
+import {getServerConfig} from "@/lib/config/env";
 declare global {var rennPool:Pool|undefined}
-export const db=globalThis.rennPool ?? new Pool({connectionString:process.env.DATABASE_URL, max:5, ssl:process.env.PGSSL==="true"?{rejectUnauthorized:true}:undefined});
-if(process.env.NODE_ENV!=="production")globalThis.rennPool=db;
-export async function sql<T=Record<string,unknown>>(text:string,params:unknown[]=[]):Promise<T[]>{const r=await db.query(text,params);return r.rows as T[]}
+const config=getServerConfig();
+export const db=globalThis.rennPool ?? new Pool({
+ connectionString:config.database.url||undefined,
+ max:Math.min(config.database.maxConnections,50),
+ connectionTimeoutMillis:5000,
+ idleTimeoutMillis:30000,
+ ssl:config.database.ssl?{rejectUnauthorized:true}:undefined
+});
+if(!config.production)globalThis.rennPool=db;
+export async function sql<T=Record<string,unknown>>(text:string,params:unknown[]=[]):Promise<T[]>{
+ const result=await db.query(text,params);return result.rows as T[];
+}
