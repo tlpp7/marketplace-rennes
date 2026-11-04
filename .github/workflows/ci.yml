@@ -34,6 +34,7 @@ jobs:
       - run: npm run check:products
       - run: npm run check:profiles
       - run: npm run lint
+      - run: npm run test:config
       - name: Apply SQL migrations
         run: |
           for f in infra/sql/0*.sql; do
