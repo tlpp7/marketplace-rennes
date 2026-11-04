@@ -1,11 +1,8 @@
 import {createHash} from "node:crypto";
+import {getServerConfig} from "@/lib/config/env";
 type Item={sku:string;title:string;list_price_cents:number;commission_bps:number};
 export function mandateConfig(){
- const name=process.env.CONSIGNMENT_OPERATOR_NAME?.trim()??"";
- const address=process.env.CONSIGNMENT_OPERATOR_ADDRESS?.trim()??"";
- const siret=process.env.CONSIGNMENT_OPERATOR_SIRET?.trim()??"";
- const version=process.env.CONSIGNMENT_TERMS_VERSION?.trim()??"";
- const terms=process.env.CONSIGNMENT_TERMS_TEXT?.trim()??"";
+ const {name,address,siret,version,terms}=getServerConfig().mandate;
  if(!name||!address||!(/^\d{14}$/.test(siret))||!version||terms.length<40)
   throw Error("Mandat indisponible : identité de l'exploitant ou conditions manquantes");
  return {name,address,siret,version,terms};
