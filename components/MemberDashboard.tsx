@@ -1,15 +1,56 @@
 "use client";import {useEffect,useState} from "react";
+import {useRouter} from "next/navigation";
 type UserData={user:{id:string;handle:string};profile:{kind:string;approved:boolean}|null};
 type Conversation={id:string;correspondent:string};
 type Appointment={id:string;starts_at:string;status:string;requester_id:string;provider_id:string};
 export default function MemberDashboard(){
+ const router=useRouter();
  const [profileKind,setProfileKind]=useState("buyer"),[city,setCity]=useState("Rennes"),[bio,setBio]=useState(""),[me,setMe]=useState<UserData|null>(null),[conversations,setConversations]=useState<Conversation[]>([]),[appointments,setAppointments]=useState<Appointment[]>([]),[follows,setFollows]=useState<{id:string;handle:string}[]>([]),[error,setError]=useState(""),[target,setTarget]=useState(""),[note,setNote]=useState(""),[date,setDate]=useState(""),[type,setType]=useState("follow"),[active,setActive]=useState<string|null>(null),[messages,setMessages]=useState<{id:string;body:string;sender:string}[]>([]),[draft,setDraft]=useState("");
  async function get(url:string){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error(r.status===401?"Connecte-toi pour accéder à cet espace":"Service indisponible");return r.json()}
  async function refresh(){try{const me=await get("/api/me");setMe(me);const profile=await get("/api/profile");if(profile.profile){setProfileKind(profile.profile.kind);setCity(profile.profile.city);setBio(profile.profile.bio)}const [f,c,a]=await Promise.all([get("/api/follows"),get("/api/conversations"),get("/api/appointments")]);setFollows(f.follows);setConversations(c.conversations);setAppointments(a.appointments);setError("")}catch(e){setError(e instanceof Error?e.message:"Erreur")}}
- useEffect(()=>{void refresh()},[]);
+ useEffect(() => {
+  let cancelled = false;
+
+  async function loadInitial() {
+    try {
+      const meData = await get("/api/me");
+      const profileData = await get("/api/profile");
+      const [f, c, a] = await Promise.all([
+        get("/api/follows"),
+        get("/api/conversations"),
+        get("/api/appointments")
+      ]);
+
+      if (cancelled) return;
+
+      setMe(meData);
+
+      if (profileData.profile) {
+        setProfileKind(profileData.profile.kind);
+        setCity(profileData.profile.city);
+        setBio(profileData.profile.bio);
+      }
+
+      setFollows(f.follows);
+      setConversations(c.conversations);
+      setAppointments(a.appointments);
+      setError("");
+    } catch (e) {
+      if (!cancelled) {
+        setError(e instanceof Error ? e.message : "Erreur");
+      }
+    }
+  }
+
+  void loadInitial();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
  async function send(path:string,body:object,method="POST"){try{const r=await fetch(path,{method,headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw Error(j.error??"Échec");setError("Action enregistrée");await refresh();return j}catch(e){setError(e instanceof Error?e.message:"Erreur");return null}}
  async function submit(e:React.FormEvent){e.preventDefault();if(type==="follow")await send("/api/follows",{handle:target});if(type==="conversation"){const j=await send("/api/conversations",{handle:target});if(j?.conversationId)await openConversation(j.conversationId)}if(type==="appointment")await send("/api/appointments",{providerHandle:target,startsAt:new Date(date).toISOString(),note})}
  async function openConversation(id:string){try{const j=await get("/api/messages?conversationId="+encodeURIComponent(id));setActive(id);setMessages(j.messages)}catch(e){setError(String(e))}}
  if(!me)return <div className="account-panel"><p>{error||"Chargement de ton espace…"}</p><a className="button button-dark" href="/compte/">Connexion →</a></div>;
- return <div className="member-panel"><h2>Bonjour, {me.user.handle}.</h2><p className="product-secondary">Profil {me.profile?.kind??"membre"} · {me.profile?.approved?"Approuvé":"En attente de validation"}</p><form onSubmit={submit}><h3>Rester en lien</h3><label>Action<select value={type} onChange={e=>setType(e.target.value)}><option value="follow">Suivre un revendeur approuvé</option><option value="conversation">Démarrer une conversation</option><option value="appointment">Demander un rendez-vous textile</option></select></label><label>Identifiant public du membre<input value={target} required onChange={e=>setTarget(e.target.value)} /></label>{type==="appointment"&&<><label>Créneau souhaité<input type="datetime-local" required value={date} onChange={e=>setDate(e.target.value)}/></label><label>Informations<textarea maxLength={500} value={note} onChange={e=>setNote(e.target.value)}/></label></>}<button className="button button-dark" type="submit">Envoyer →</button></form><section className="member-profile-editor"><h3>Mon profil public</h3><p>Demande le statut de revendeur ou prestataire. Une validation est requise avant affichage.</p><form onSubmit={async e=>{e.preventDefault();await send("/api/profile",{kind:profileKind,city,bio},"PATCH")}}><label>Type de compte<select value={profileKind} onChange={e=>setProfileKind(e.target.value)}><option value="buyer">Acheteur</option><option value="reseller">Revendeur</option><option value="care">Prestataire textile</option></select></label><label>Ville<input maxLength={100} value={city} onChange={e=>setCity(e.target.value)}/></label><label>Présentation<textarea maxLength={500} value={bio} onChange={e=>setBio(e.target.value)}/></label><button className="button button-dark" type="submit">Enregistrer mon profil</button></form></section><div className="member-columns"><section><h3>Abonnements</h3>{follows.length?follows.map(f=><p key={f.id}>{f.handle} <button type="button" onClick={()=>void send("/api/follows",{handle:f.handle},"DELETE")}>Ne plus suivre</button></p>):<p>Aucun revendeur suivi.</p>}</section><section><h3>Conversations</h3>{conversations.length?conversations.map(c=><button type="button" className="member-item" key={c.id} onClick={()=>void openConversation(c.id)}>Discussion avec {c.correspondent} →</button>):<p>Aucune conversation.</p>}</section><section><h3>Rendez-vous</h3>{appointments.length?appointments.map(a=><p key={a.id}>{new Date(a.starts_at).toLocaleString("fr-FR")} · {a.status}{a.status==="requested"&&<span className="admin-actions">{a.requester_id===me.user.id?<button type="button" onClick={()=>void send("/api/appointments/"+a.id,{action:"cancel"},"PATCH")}>Annuler</button>:a.provider_id===me.user.id?<><button type="button" onClick={()=>void send("/api/appointments/"+a.id,{action:"accept"},"PATCH")}>Accepter</button><button type="button" onClick={()=>void send("/api/appointments/"+a.id,{action:"decline"},"PATCH")}>Refuser</button></>:null}</span>}</p>):<p>Aucune demande.</p>}</section></div>{active&&<section className="member-messages"><h3>Conversation</h3>{messages.map(m=><p key={m.id}><strong>{m.sender}</strong> : {m.body}</p>)}<form onSubmit={async e=>{e.preventDefault();const j=await send("/api/messages",{conversationId:active,message:draft});if(j){setDraft("");await openConversation(active)}}}><label>Message<input value={draft} onChange={e=>setDraft(e.target.value)} required maxLength={2000}/></label><button type="submit" className="button button-dark">Envoyer</button></form></section>}<p aria-live="polite">{error}</p><button className="button button-plain" onClick={async()=>{await send("/api/auth/logout",{});window.location.assign("/compte/")}}>Se déconnecter</button></div>
+ return <div className="member-panel"><h2>Bonjour, {me.user.handle}.</h2><p className="product-secondary">Profil {me.profile?.kind??"membre"} · {me.profile?.approved?"Approuvé":"En attente de validation"}</p><form onSubmit={submit}><h3>Rester en lien</h3><label>Action<select value={type} onChange={e=>setType(e.target.value)}><option value="follow">Suivre un revendeur approuvé</option><option value="conversation">Démarrer une conversation</option><option value="appointment">Demander un rendez-vous textile</option></select></label><label>Identifiant public du membre<input value={target} required onChange={e=>setTarget(e.target.value)} /></label>{type==="appointment"&&<><label>Créneau souhaité<input type="datetime-local" required value={date} onChange={e=>setDate(e.target.value)}/></label><label>Informations<textarea maxLength={500} value={note} onChange={e=>setNote(e.target.value)}/></label></>}<button className="button button-dark" type="submit">Envoyer →</button></form><section className="member-profile-editor"><h3>Mon profil public</h3><p>Demande le statut de revendeur ou prestataire. Une validation est requise avant affichage.</p><form onSubmit={async e=>{e.preventDefault();await send("/api/profile",{kind:profileKind,city,bio},"PATCH")}}><label>Type de compte<select value={profileKind} onChange={e=>setProfileKind(e.target.value)}><option value="buyer">Acheteur</option><option value="reseller">Revendeur</option><option value="care">Prestataire textile</option></select></label><label>Ville<input maxLength={100} value={city} onChange={e=>setCity(e.target.value)}/></label><label>Présentation<textarea maxLength={500} value={bio} onChange={e=>setBio(e.target.value)}/></label><button className="button button-dark" type="submit">Enregistrer mon profil</button></form></section><div className="member-columns"><section><h3>Abonnements</h3>{follows.length?follows.map(f=><p key={f.id}>{f.handle} <button type="button" onClick={()=>void send("/api/follows",{handle:f.handle},"DELETE")}>Ne plus suivre</button></p>):<p>Aucun revendeur suivi.</p>}</section><section><h3>Conversations</h3>{conversations.length?conversations.map(c=><button type="button" className="member-item" key={c.id} onClick={()=>void openConversation(c.id)}>Discussion avec {c.correspondent} →</button>):<p>Aucune conversation.</p>}</section><section><h3>Rendez-vous</h3>{appointments.length?appointments.map(a=><p key={a.id}>{new Date(a.starts_at).toLocaleString("fr-FR")} · {a.status}{a.status==="requested"&&<span className="admin-actions">{a.requester_id===me.user.id?<button type="button" onClick={()=>void send("/api/appointments/"+a.id,{action:"cancel"},"PATCH")}>Annuler</button>:a.provider_id===me.user.id?<><button type="button" onClick={()=>void send("/api/appointments/"+a.id,{action:"accept"},"PATCH")}>Accepter</button><button type="button" onClick={()=>void send("/api/appointments/"+a.id,{action:"decline"},"PATCH")}>Refuser</button></>:null}</span>}</p>):<p>Aucune demande.</p>}</section></div>{active&&<section className="member-messages"><h3>Conversation</h3>{messages.map(m=><p key={m.id}><strong>{m.sender}</strong> : {m.body}</p>)}<form onSubmit={async e=>{e.preventDefault();const j=await send("/api/messages",{conversationId:active,message:draft});if(j){setDraft("");await openConversation(active)}}}><label>Message<input value={draft} onChange={e=>setDraft(e.target.value)} required maxLength={2000}/></label><button type="submit" className="button button-dark">Envoyer</button></form></section>}<p aria-live="polite">{error}</p><button className="button button-plain" onClick={async()=>{await send("/api/auth/logout",{});router.replace("/compte/");router.refresh()}}>Se déconnecter</button></div>
 }

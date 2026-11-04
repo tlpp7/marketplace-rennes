@@ -52,7 +52,7 @@ export default function AccountWorkspace(){
      <button type="button" onClick={()=>setTab("community")}><span aria-hidden="true">♡</span><strong>Gérer mes échanges</strong><small>Retrouver mes messages, abonnements et rendez-vous.</small><span aria-hidden="true">↗</span></button>
      <Link href="/profils/"><span aria-hidden="true">✳</span><strong>Découvrir les profils</strong><small>Revendeurs et futurs services textiles à Rennes.</small><span aria-hidden="true">↗</span></Link>
     </div>
-    <p className="workspace-footnote">Les fonctions de vente et de dépôt physique restent en préparation.</p>
+    <p className="workspace-footnote">Les achats en ligne restent désactivés. Un dépôt physique n’est accepté qu’après confirmation et attestation de réception.</p>
    </>}
    {tab==="deposits"&&<><div className="workspace-welcome"><span className="section-kicker">DÉPÔT-VENTE</span><h2>Mes pièces, <em>à mon rythme.</em></h2><p>Propose un vêtement, puis retrouve ses étapes de traitement.</p></div><ConsignmentPanel/></>}
    {tab==="orders"&&<><div className="workspace-welcome"><span className="section-kicker">COMMANDES</span><h2>Mes achats, <em>à suivre.</em></h2><p>Demandes de commande et suivi des futures livraisons.</p></div><OrdersPanel/></>}

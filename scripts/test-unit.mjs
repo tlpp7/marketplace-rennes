@@ -10,5 +10,32 @@ test("required migrations and route protections",()=>{
 });
 test("payment routes remain disabled by default",()=>{
  const content=fs.readFileSync("app/api/orders/route.ts","utf8");
- assert.match(content,/ORDERS_ENABLED/);
+ assert.match(content,/getServerConfig\(\)\.flags\.ordersEnabled/);
+ const config=fs.readFileSync("lib/config/env.ts","utf8");
+ assert.match(config,/ORDERS_ENABLED/);
+});
+
+test("V0.2 requires reception, quality, mandate and publication",()=>{
+ const migration=fs.readFileSync("infra/sql/006_v02_operations.sql","utf8");
+ for(const name of ["consignment_receipts","consignment_quality_reports","consignment_mandates","consignment_publications","enforce_consignment_workflow"]){
+  assert.match(migration,new RegExp(name));
+ }
+ const legacy=fs.readFileSync("app/api/admin/inventory/[id]/route.ts","utf8");
+ assert.doesNotMatch(legacy,/intake:\s*\["quality_check"\]/);
+ assert.doesNotMatch(legacy,/ready:\s*\["listed"/);
+ const operations=fs.readFileSync("app/api/admin/inventory/[id]/operations/route.ts","utf8");
+ assert.match(operations,/currentAdmin/);
+ assert.match(operations,/trustedRequest/);
+ assert.match(operations,/mandate/);
+ const catalog=fs.readFileSync("modules/catalog/live.ts","utf8");
+ assert.match(catalog,/i\.state='listed'/);
+ assert.match(catalog,/consignment_mandates/);
+ const mandate=fs.readFileSync("app/api/consignments/[id]/mandate/route.ts","utf8");
+ assert.match(mandate,/previewSha256/);
+ const evidence=fs.readFileSync("infra/sql/007_v02_hardening.sql","utf8");
+ assert.match(evidence,/prevent_consignment_evidence_rewrite/);
+ assert.match(evidence,/consignment_positive_checks/);
+ const transition=fs.readFileSync("app/api/admin/inventory/[id]/route.ts","utf8");
+ assert.doesNotMatch(transition,/reserved:\s*\["listed","sold"\]/);
+ assert.match(operations,/existsSync/);
 });

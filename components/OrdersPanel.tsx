@@ -2,6 +2,29 @@
 type Order={id:string;sku:string;price_cents:number;status:string;shipment_status:string|null;tracking_reference:string|null};
 export default function OrdersPanel(){const [orders,setOrders]=useState<Order[]>([]),[message,setMessage]=useState(""),[sku,setSku]=useState("");
 async function load(){try{const r=await fetch("/api/orders");if(!r.ok)return;const j=await r.json();setOrders(j.orders??[])}catch{}}
-useEffect(()=>{void load()},[]);
+useEffect(() => {
+  let cancelled = false;
+
+  async function loadInitialOrders() {
+    try {
+      const response = await fetch("/api/orders");
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      if (!cancelled) {
+        setOrders(data.orders ?? []);
+      }
+    } catch {
+      // Le chargement initial a échoué.
+    }
+  }
+
+  void loadInitialOrders();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
 async function send(endpoint:string,payload:object){try{const r=await fetch(endpoint,{method:endpoint==="/api/orders"?"POST":"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const j=await r.json();if(!r.ok)throw Error(j.error??"Erreur");setMessage("Demande enregistrée");await load()}catch(e){setMessage(e instanceof Error?e.message:"Erreur")}}
-return <section className="orders-panel"><h2>Mes commandes</h2><p className="product-secondary">Les commandes sont en mode préparation. Aucun paiement n'est collecté sur le site.</p><form onSubmit={e=>{e.preventDefault();void send("/api/orders",{sku})}}><label>Référence d'un article publié<input required pattern="RF-[0-9]{7}" placeholder="RF-0000001" value={sku} onChange={e=>setSku(e.target.value)}/></label><button className="button button-dark" type="submit">Demander cet article</button></form><p role="status">{message}</p><div className="consignment-rows">{orders.length?orders.map(o=><article className="consignment-row" key={o.id}><div><strong>{o.sku}</strong><p>{(o.price_cents/100).toLocaleString("fr-FR",{style:"currency",currency:"EUR"})} · {o.status} · livraison : {o.shipment_status??"non planifiée"}</p></div>{o.status==="requested"&&<button type="button" onClick={()=>void send("/api/orders/"+o.id,{action:"cancel"})}>Annuler</button>}</article>):<p>Aucune commande.</p>}</div></section>}
+return <section className="orders-panel"><h2>Mes commandes</h2><p className="product-secondary">Les commandes sont en mode préparation. Aucun paiement n&apos;est collecté sur le site.</p><form onSubmit={e=>{e.preventDefault();void send("/api/orders",{sku})}}><label>Référence d&apos;un article publié<input required pattern="RF-[0-9]{7}" placeholder="RF-0000001" value={sku} onChange={e=>setSku(e.target.value)}/></label><button className="button button-dark" type="submit">Demander cet article</button></form><p role="status">{message}</p><div className="consignment-rows">{orders.length?orders.map(o=><article className="consignment-row" key={o.id}><div><strong>{o.sku}</strong><p>{(o.price_cents/100).toLocaleString("fr-FR",{style:"currency",currency:"EUR"})} · {o.status} · livraison : {o.shipment_status??"non planifiée"}</p></div>{o.status==="requested"&&<button type="button" onClick={()=>void send("/api/orders/"+o.id,{action:"cancel"})}>Annuler</button>}</article>):<p>Aucune commande.</p>}</div></section>}

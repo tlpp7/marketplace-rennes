@@ -2,7 +2,7 @@
 import {useMemo,useState} from "react";
 import ProductCard from "@/components/ProductCard";
 import type {Product} from "@/modules/catalog/types";
-export default function CatalogueClient({products}:{products:Product[]}){
+export default function CatalogueClient({products,liveCount=0}:{products:Product[];liveCount?:number}){
  const [query,setQuery]=useState("");
  const [category,setCategory]=useState("all");
  const [sort,setSort]=useState("default");
@@ -15,7 +15,7 @@ export default function CatalogueClient({products}:{products:Product[]}){
   return arr;
  },[products,query,category,sort]);
  return <>
-  <div className="demo-note">Catalogue de démonstration : aucune pièce n’est actuellement commercialisée.</div>
+  <div className="demo-note">{liveCount>0?String(liveCount)+" article(s) réellement référencé(s). Les articles démo sont fictifs ; aucune commande en ligne n'est encore ouverte.":"Aucun vêtement réel publié pour le moment. Les pièces ci-dessous sont des démonstrations non commercialisées."}</div>
   <div className="catalog-controls">
    <input type="search" aria-label="Rechercher un vêtement" placeholder="Rechercher une pièce, une marque, une taille…" value={query} onChange={e=>setQuery(e.target.value)}/>
    <select aria-label="Filtrer par catégorie" value={category} onChange={e=>setCategory(e.target.value)}><option value="all">Toutes les catégories</option>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select>
