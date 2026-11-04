@@ -20,7 +20,9 @@
     "test:p1": "node --test tests/validation/p1.test.mjs",
     "test:security": "npm run test:p0 && npm run test:p1 && node --test tests/integration/messages-access.test.mjs",
     "test:v02:db": "node --test scripts/test-v02-db.mjs",
-    "db:migrate:v02": "node scripts/migrate-v02.mjs"
+    "db:migrate:v02": "node scripts/migrate-v02.mjs",
+    "test:config": "node --test scripts/test-config.mjs",
+    "check:config": "node scripts/check-config.mjs"
   },
   "dependencies": {
     "next": "^16.4.4",
