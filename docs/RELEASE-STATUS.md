@@ -6,3 +6,9 @@
 - V0.5 : commandes demandées en mode privé, calcul de prix, bases expéditions/événements PSP. Pas de paiement ni de livraison réelle.
 
 **Règle de lancement** : jamais activer comptes et commandes pour le public sans audit sécurité et parcours conforme.
+
+## Durcissement en préparation (PR dédiée)
+
+Les tâches de préparation à la production portent sur des protections HTTP (`Origin`, limites JSON, en-têtes), des contrôles de santé distincts, la reproductibilité `npm ci`, l'audit automatique du dépôt et la documentation de release.
+
+**Ces tâches ne débloquent pas les paiements**, n'installent pas le connecteur S3 et ne remplacent pas la revue des sauvegardes. Voir `docs/PRODUCTION-READINESS.md` pour les critères de promotion.
