@@ -1,4 +1,5 @@
 import {db} from "@/lib/db";import {digest} from "@/lib/auth-guard";
+import {publicOrigin} from "@/lib/public-origin";
 export const runtime="nodejs";
 export async function GET(request:Request){
  const token=new URL(request.url).searchParams.get("token");
@@ -10,7 +11,7 @@ export async function GET(request:Request){
   if(!r.rows.length){await client.query("ROLLBACK");return new Response("Lien expiré ou déjà utilisé",{status:400})}
   await client.query("UPDATE users SET email_verified_at=now() WHERE id=$1",[r.rows[0].user_id]);
   await client.query("COMMIT");
-  return Response.redirect(new URL("/compte/?verified=1",request.url));
+  return Response.redirect(new URL("/compte/?verified=1",publicOrigin(request)),303);
  }catch{await client.query("ROLLBACK");return new Response("Vérification indisponible",{status:503})}
  finally{client.release()}
 }
