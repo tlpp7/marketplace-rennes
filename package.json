@@ -22,7 +22,9 @@
     "test:v02:db": "node --test scripts/test-v02-db.mjs",
     "db:migrate:v02": "node scripts/migrate-v02.mjs",
     "test:config": "node --test scripts/test-config.mjs",
-    "check:config": "node scripts/check-config.mjs"
+    "check:config": "node scripts/check-config.mjs",
+    "test:release": "node --test scripts/test-release.mjs",
+    "test:smoke:security": "node scripts/smoke-security.mjs"
   },
   "dependencies": {
     "next": "^16.4.4",

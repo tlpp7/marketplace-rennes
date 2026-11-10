@@ -1,29 +1,40 @@
 name: Quality Gates P0 P1 P2
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
 on:
   push:
   pull_request:
 jobs:
   dependencies:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm install
+          cache: npm
+      - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
   unit-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm install
+          cache: npm
+      - run: npm ci
       - run: node --test scripts/test-unit.mjs
       - run: npm run test:config
+      - run: npm run test:release
   browser-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     services:
       postgres:
         image: postgres:17
@@ -47,7 +58,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm install
+          cache: npm
+      - run: npm ci
       - name: Apply database schema
         run: |
           for f in infra/sql/0*.sql; do

@@ -1,10 +1,16 @@
 name: CI
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 on:
   push:
   pull_request:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:17
@@ -30,11 +36,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm install
+          cache: npm
+      - run: npm ci
       - run: npm run check:products
       - run: npm run check:profiles
       - run: npm run lint
       - run: npm run test:config
+      - run: npm run test:release
       - name: Apply SQL migrations
         run: |
           for f in infra/sql/0*.sql; do
@@ -68,6 +76,7 @@ jobs:
           curl -fsS -o /dev/null http://127.0.0.1:3000/mon-espace/
           node scripts/smoke-auth.mjs
           RF_V02_TEST_MODE=true node scripts/smoke-v02.mjs
+          node scripts/smoke-security.mjs
       - name: Email verification, recovery and security smoke test (local SMTP)
         run: node scripts/smoke-email.mjs
       - name: Dependency vulnerability audit
