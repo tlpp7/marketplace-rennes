@@ -23,7 +23,9 @@ export async function trustedRequest(request:Request){
   if(config.urls.appOrigin)return origin.origin===config.urls.appOrigin;
   if(config.production)return false; // Fail closed without APP_ORIGIN
   const target=new URL(request.url);
-  return ["localhost","127.0.0.1","[::1]"].includes(target.hostname)&&origin.origin===target.origin;
+  const loopback=["localhost","127.0.0.1","[::1]"];
+  return loopback.includes(target.hostname)&&loopback.includes(origin.hostname)
+   &&origin.protocol===target.protocol&&origin.port===target.port;
  }catch{return false}
 }
 export function fail(message:string,status=400){return Response.json({error:message},{status})}
