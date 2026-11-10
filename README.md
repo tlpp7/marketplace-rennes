@@ -2,7 +2,9 @@
 
 Application Next.js 16 / React 19 / PostgreSQL pour le dépôt-vente de vêtements et la communauté locale.
 
-**État : préproduction.** Catalogue de démonstration disponible ; les articles réellement publiés proviennent de PostgreSQL. Les **commandes et paiements restent désactivés** jusqu'à validation de la V0.3.
+**État : préproduction technique, pas encore de lancement commercial.** Catalogue de démonstration disponible ; les articles réellement publiés proviennent de PostgreSQL. Les **commandes et paiements restent désactivés** jusqu'à intégration et validation du prestataire de paiement, des remboursements et des protections anti-double vente.
+
+**Avant toute ouverture :** [Critères de release](docs/PRODUCTION-READINESS.md) · [Architecture](docs/ARCHITECTURE.md) · [Configuration Railway](docs/RAILWAY-CONFIG.md).
 
 ## Fonctionnalités
 
@@ -44,6 +46,8 @@ npm ci
 npm run lint
 npm run build
 npm run test:unit
+npm run test:config
+npm run test:release
 npm run dev
 ~~~
 
@@ -51,7 +55,7 @@ Variables nécessaires aux fonctions privées : DATABASE_URL, SESSION_SECRET et 
 
 Pour les **mandats**, renseigner la raison sociale, adresse, SIRET, version et texte des conditions dans les variables CONSIGNMENT_OPERATOR_NAME, CONSIGNMENT_OPERATOR_ADDRESS, CONSIGNMENT_OPERATOR_SIRET, CONSIGNMENT_TERMS_VERSION, CONSIGNMENT_TERMS_TEXT. Sans elles, l'acceptation de mandat reste volontairement impossible.
 
-Pour les photos externes autorisées, configurer CONSIGNMENT_MEDIA_HOSTS. Les images sous public/consignments/ peuvent être référencées par un chemin relatif.
+Pour les photos externes autorisées, configurer CONSIGNMENT_MEDIA_HOSTS. Les images sous public/consignments/ peuvent être référencées par un chemin relatif **uniquement si elles sont livrées dans le code**. Les photos téléchargées à l'exécution doivent à terme passer par le stockage S3 persistant ; les buckets sont provisionnés, mais l'adaptateur d'upload reste à développer.
 
 ## Migration et tests de V0.2
 
@@ -69,7 +73,7 @@ GitHub Actions vérifie les migrations, les transitions de stock, le build et le
 
 Railway héberge l'application Next.js et PostgreSQL. La publication d'une nouvelle version exige : sauvegarde de la base, migrations appliquées sur la bonne base, variables de production vérifiées, tests de non-régression verts et conditions juridiques validées.
 
-La branche de travail est security/dependency-hardening ; vérifier la branche configurée dans Railway avant de déployer.
+La branche `security/dependency-hardening` est reliée à Railway. **Ne pas pousser des expérimentations directement dessus.** La préparation de release est isolée dans `chore/production-readiness` et doit passer par une pull request avant toute promotion. Vérifier les branches reliées aux services dans Railway avant chaque fusion.
 
 ## Sécurité et limites
 
