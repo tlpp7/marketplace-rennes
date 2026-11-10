@@ -2,7 +2,8 @@ import {SMTPServer} from "smtp-server";
 import {spawn} from "node:child_process";
 import {setTimeout as delay} from "node:timers/promises";
 import pg from "pg";
-const origin="http://127.0.0.1:3001";
+const origin="http://127.0.0.1:3001"; // Local transport behind a simulated TLS-terminating proxy
+const publicOrigin="https://127.0.0.1:3001"; // The configured production APP_ORIGIN
 const nonce=Date.now().toString(36);
 const email="smtp_"+nonce+"@example.invalid";
 const handle="smtp_"+nonce;
@@ -13,14 +14,14 @@ let child;
 let childLog="";
 function check(condition,reason){if(!condition)throw Error(reason)}
 async function request(path,data,cookie){
- const r=await fetch(origin+path,{method:"POST",headers:{"Content-Type":"application/json",Origin:origin,...(cookie?{Cookie:cookie}:{})},body:JSON.stringify(data)});
+ const r=await fetch(origin+path,{method:"POST",headers:{"Content-Type":"application/json",Origin:publicOrigin,...(cookie?{Cookie:cookie}:{})},body:JSON.stringify(data)});
  const json=await r.json().catch(()=>({}));return {status:r.status,json,cookie:r.headers.get("set-cookie")?.split(";")[0]};
 }
 function tokenFromMessage(i){const source=(messages[i]??"").replace(/=\r?\n/g,"").replace(/=3D/gi,"=");const found=source.match(/[?&]token=([a-f0-9]{64})/);if(!found)throw Error("Aucun jeton trouvé dans le message SMTP (réception="+messages.length+")");return found[1]}
 try{
  await new Promise((resolve,reject)=>smtp.listen(2525,"127.0.0.1",e=>e?reject(e):resolve()));
  await client.connect();
- child=spawn(process.execPath,["node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port","3001"],{env:{...process.env,NODE_ENV:"production",APP_ORIGIN:"https://127.0.0.1:3001",SMTP_HOST:"127.0.0.1",SMTP_PORT:"2525",SMTP_SECURE:"false",SMTP_USER:"test",SMTP_PASSWORD:"test",SMTP_FROM:"RennFripes <test@example.invalid>",ACCOUNTS_ENABLED:"true",ALLOW_UNVERIFIED_LOCAL:"false"},stdio:["ignore","pipe","pipe"]});
+ child=spawn(process.execPath,["node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port","3001"],{env:{...process.env,NODE_ENV:"production",APP_ORIGIN:publicOrigin,SMTP_HOST:"127.0.0.1",SMTP_PORT:"2525",SMTP_SECURE:"false",SMTP_USER:"test",SMTP_PASSWORD:"test",SMTP_FROM:"RennFripes <test@example.invalid>",ACCOUNTS_ENABLED:"true",ALLOW_UNVERIFIED_LOCAL:"false"},stdio:["ignore","pipe","pipe"]});
  child.stdout.on("data",v=>{childLog=(childLog+v.toString()).slice(-4000)});
  child.stderr.on("data",v=>{childLog=(childLog+v.toString()).slice(-4000)});
  let ready=false;for(let i=0;i<70;i++){try{const r=await fetch(origin+"/api/health/");if(r.ok){ready=true;break}}catch{}await delay(1000)}
