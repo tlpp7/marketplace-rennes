@@ -29,6 +29,7 @@ async function loadDomain(path){
 const {createConsignmentService}=await import(await loadDomain("modules/consignment/service.ts"));
 const {createOrderService}=await import(await loadDomain("modules/orders/service.ts"));
 const {createInventoryService}=await import(await loadDomain("modules/inventory/service.ts"));
+const {createReviewService}=await import(await loadDomain("modules/consignment/review-service.ts"));
 
 test("consignment service preserves public success response and limits repository writes",async()=>{
  const writes=[];
@@ -114,4 +115,45 @@ test("transaction exceptions propagate, never return a false success",async()=>{
   appendMovement:async()=>assert.fail("should not append")
  })});
  await assert.rejects(service.changeState({itemId:"id",actorId:"admin",target:"reserved",location:"A"}),/postgres unavailable/);
+});
+
+test("administrative review keeps statuses, validation and inventory creation atomic",async()=>{
+ let current="submitted",skuCreated=0;
+ const changes=[],actions=[];
+ const unit={
+  transaction:async fn=>{
+   actions.push("begin");
+   const result=await fn({
+    lock:async id=>id==="request"?
+      {id,status:current,estimatedPriceCents:3500}:null,
+    setStatus:async(id,status)=>{changes.push({id,status});current=status},
+    createInventory:async(id,actorId,priceCents,commissionBps)=>{
+     skuCreated++;assert.equal(id,"request");assert.equal(actorId,"admin");
+     assert.equal(priceCents,3500);assert.equal(commissionBps,3500);
+    }
+   });
+   actions.push("commit");
+   return result;
+  }
+ };
+ const service=createReviewService(unit);
+ assert.deepEqual(await service.transition({id:"request",actorId:"admin",action:"invalid",commissionBps:0}),
+  {ok:false,status:400,error:"Action invalide"});
+ assert.equal(actions.length,0,"Invalid review action must not access DB");
+ assert.deepEqual(await service.transition({id:"missing",actorId:"admin",action:"review"}),
+  {ok:false,status:404,error:"Demande introuvable"});
+ assert.deepEqual(await service.transition({id:"request",actorId:"admin",action:"accept",commissionBps:3500}),
+  {ok:false,status:409,error:"Transition interdite"});
+ assert.deepEqual(await service.transition({id:"request",actorId:"admin",action:"review"}),
+  {ok:true,value:{id:"request",status:"reviewing"}});
+ assert.deepEqual(await service.transition({id:"request",actorId:"admin",action:"accept",commissionBps:10001}),
+  {ok:false,status:400,error:"Commission invalide"});
+ assert.equal(current,"reviewing");assert.equal(skuCreated,0);
+ assert.deepEqual(await service.transition({id:"request",actorId:"admin",action:"accept",commissionBps:3500}),
+  {ok:true,value:{id:"request",status:"accepted"}});
+ assert.equal(skuCreated,1);
+ assert.deepEqual(await service.transition({id:"request",actorId:"admin",action:"decline"}),
+  {ok:false,status:409,error:"Transition interdite"});
+ assert.deepEqual(changes.map(x=>x.status),["reviewing","accepted"]);
+ assert.equal(actions.filter(x=>x==="begin").length,actions.filter(x=>x==="commit").length);
 });
