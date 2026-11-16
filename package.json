@@ -12,7 +12,7 @@
     "check:profiles": "node scripts/check-profiles.mjs",
     "db:check": "node scripts/check-database.mjs",
     "test:e2e": "playwright test",
-    "test:unit": "node --test scripts/test-unit.mjs scripts/test-invariants.mjs",
+    "test:unit": "node --test scripts/test-unit.mjs scripts/test-invariants.mjs scripts/test-domain-services.mjs",
     "test:v02:production": "node scripts/validate-v02-production.mjs",
     "test:v02:data": "node --test scripts/check-profiles-v02.mjs",
     "test:v02:browser": "playwright test tests/e2e/profiles-v02.spec.mjs --workers=1",
@@ -25,7 +25,9 @@
     "check:config": "node scripts/check-config.mjs",
     "test:release": "node --test scripts/test-release.mjs",
     "test:smoke:security": "node scripts/smoke-security.mjs",
-    "test:invariants": "node --test scripts/test-invariants.mjs"
+    "test:invariants": "node --test scripts/test-invariants.mjs",
+    "test:domain": "node --test scripts/test-domain-services.mjs",
+    "test:smoke:contracts": "node scripts/smoke-contracts.mjs"
   },
   "dependencies": {
     "next": "^16.4.4",

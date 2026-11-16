@@ -59,10 +59,38 @@ test("operational release documentation exists",()=>{
 });
 
 test("V0.5.1 domain policies are wired to server APIs and SQL",()=>{
- assert.match(read("app/api/admin/inventory/[id]/route.ts"),/allowedAdminTransition/);
+ assert.match(read("modules/inventory/service.ts"),/allowedAdminTransition/);
+ assert.match(read("app/api/admin/inventory/[id]/route.ts"),/createInventoryService/);
  assert.match(read("app/api/admin/inventory/[id]/operations/route.ts"),/hasPublicationEvidence/);
  assert.match(read("infra/sql/008_v051_unsettled_sale_guard.sql"),/trg_reject_unsettled_sale/);
  assert.match(read("lib/security.ts"),/isTrustedOrigin/);
  assert.match(read("lib/consignment-mandate.ts"),/evidenceSha256/);
  assert.match(read("package.json"),/test:invariants/);
+});
+
+test("V0.5.2 routes delegate to services, adapters preserve legacy SQL and envelopes",()=>{
+ const map=[
+  ["app/api/consignments/route.ts","createConsignmentService"],
+  ["app/api/consignments/[id]/route.ts","createConsignmentService"],
+  ["app/api/admin/consignments/route.ts","createConsignmentService"],
+  ["app/api/admin/consignments/[id]/route.ts","createReviewService"],
+  ["app/api/orders/route.ts","createOrderService"],
+  ["app/api/orders/[id]/route.ts","createOrderService"],
+  ["app/api/admin/orders/route.ts","createOrderService"],
+  ["app/api/admin/inventory/[id]/route.ts","createInventoryService"]
+ ];
+ for(const [path,service] of map)assert.match(read(path),new RegExp(service));
+ assert.match(read("modules/inventory/repository.pg.ts"),/FOR UPDATE/);
+ assert.match(read("modules/inventory/repository.pg.ts"),/stock_movements/);
+ assert.match(read("modules/orders/repository.pg.ts"),/NOT EXISTS/);
+ for(const path of [
+  "modules/consignment/service.ts",
+  "modules/consignment/review-service.ts",
+  "modules/orders/service.ts",
+  "modules/inventory/service.ts"
+ ]){
+  const source=read(path);
+  assert.equal(source.includes('from "@/lib/db"'),false);
+  assert.equal(source.includes('from "next/'),false);
+ }
 });

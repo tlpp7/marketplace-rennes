@@ -78,6 +78,7 @@ jobs:
           node scripts/smoke-auth.mjs
           RF_V02_TEST_MODE=true node scripts/smoke-v02.mjs
           node scripts/smoke-security.mjs
+          node scripts/smoke-contracts.mjs
       - name: Email verification, recovery and security smoke test (local SMTP)
         run: node scripts/smoke-email.mjs
       - name: Dependency vulnerability audit

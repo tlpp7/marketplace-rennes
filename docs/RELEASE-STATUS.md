@@ -22,3 +22,11 @@ Les tâches de préparation à la production portent sur des protections HTTP (`
 - Tests de propriétés déterministes et vérifications PostgreSQL dans GitHub Actions.
 
 **Non fusionné / non déployé en production.** Voir `docs/V0.5.1-INVARIANTS.md`.
+
+## V0.5.2 — Isolation métier et contrat HTTP
+
+- Contrats et services de domaine pour dépôt-vente, commandes, inventaire et acceptation administrative.
+- Adaptateurs PostgreSQL indépendants et transactions atomiques.
+- Les routes existantes conservent les noms, réponses et statuts ; aucun paiement activé.
+- Tests unitaires par injection de faux dépôts et tests HTTP de non-régression dans la CI.
+- Travail isolé sur `feat/v0.5.2-domain-services`, voir `docs/V0.5.2-SERVICES.md`.
