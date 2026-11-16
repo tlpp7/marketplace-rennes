@@ -20,6 +20,7 @@ const cases=[
  {name:"admin inventory requires admin",path:"/api/admin/inventory/",status:403,error:"Accès refusé"},
  {name:"consignment POST CSRF first",path:"/api/consignments/",method:"POST",body:{},status:403,error:"Origine non autorisée"},
  {name:"consignment withdrawal CSRF first",path:"/api/consignments/00000000-0000-0000-0000-000000000000/",method:"PATCH",body:{action:"withdraw"},status:403,error:"Origine non autorisée"},
+ {name:"admin consignment review CSRF first",path:"/api/admin/consignments/00000000-0000-0000-0000-000000000000/",method:"PATCH",body:{action:"review"},status:403,error:"Origine non autorisée"},
  {name:"admin inventory CSRF first",path:"/api/admin/inventory/00000000-0000-0000-0000-000000000000/",method:"PATCH",body:{state:"listed"},status:403,error:"Origine non autorisée"},
  {name:"order cancellation CSRF first",path:"/api/orders/00000000-0000-0000-0000-000000000000/",method:"PATCH",body:{action:"cancel"},status:403,error:"Origine non autorisée"},
  {name:"orders feature gate before authentication",path:"/api/orders/",method:"POST",body:{sku:"RF-0000001"},status:503,error:"Demandes de commande désactivées"}
