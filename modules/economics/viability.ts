@@ -24,12 +24,12 @@ export function calculateViability(inputs:ViabilityInputs){
  for(const [name,value] of Object.entries(inputs))nonnegative(name,value);
  if(commissionBps>10000)throw Error("commissionBps must be <= 10000");
  const price=BigInt(averageSaleCents);
- const commission=(price*BigInt(commissionBps)+5000n)/10000n;
+ const commission=(price*BigInt(commissionBps)+BigInt(5000))/BigInt(10000);
  const variable=BigInt(processingCents)+BigInt(handlingCents)+BigInt(incidentProvisionCents);
  const contribution=commission-variable;
  const monthly=contribution*BigInt(paidSales)-BigInt(fixedMonthlyCents);
- const breakEvenOrders=fixedMonthlyCents===0?0:contribution>0n
-  ?safe((BigInt(fixedMonthlyCents)+contribution-1n)/contribution,"breakEvenOrders"):null;
+ const breakEvenOrders=fixedMonthlyCents===0?0:contribution>BigInt(0)
+  ?safe((BigInt(fixedMonthlyCents)+contribution-BigInt(1))/contribution,"breakEvenOrders"):null;
  return {
   commissionPerSaleCents:safe(commission,"commission"),
   variableCostPerSaleCents:safe(variable,"variableCost"),
