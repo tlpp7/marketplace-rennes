@@ -50,6 +50,7 @@ test("V0.2 : contraintes de workflow en PostgreSQL (transaction annulée)",async
   assert.equal((await live()).rowCount,1,"Un article publié avec toutes ses preuves doit être visible");
   await client.query("UPDATE consignment_inventory SET state='reserved' WHERE id=$1",[item.id]);
   assert.equal((await live()).rowCount,0,"Un article réservé ne doit plus apparaître");
+  await denied("UPDATE consignment_inventory SET state='sold' WHERE id=$1");
   await client.query("UPDATE consignment_inventory SET state='listed' WHERE id=$1",[item.id]);
   assert.equal((await live()).rowCount,1,"L'article redevient visible après remise en stock");
   await client.query("ROLLBACK");
