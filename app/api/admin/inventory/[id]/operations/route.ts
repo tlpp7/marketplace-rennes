@@ -1,4 +1,5 @@
-import {createHash} from "node:crypto";
+import {evidenceSha256} from "@/lib/crypto/evidence";
+import {allowedWorkflowAction,hasPublicationEvidence} from "@/modules/inventory/state-machine";
 import {existsSync} from "node:fs";
 import {join} from "node:path";
 import {db} from "@/lib/db";
@@ -33,7 +34,7 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
   let nextState="";
   let detail="";
   if(action==="receive"){
-   if(item.state!=="intake"){await client.query("ROLLBACK");return fail("Réception déjà traitée",409)}
+   if(!allowedWorkflowAction("receive",item.state)){await client.query("ROLLBACK");return fail("Réception déjà traitée",409)}
    const mandate=await client.query("SELECT item_id FROM consignment_mandates WHERE item_id=$1",[id]);
    if(!mandate.rowCount){await client.query("ROLLBACK");return fail("Le déposant doit accepter le mandat avant la réception",409)}
    const reference=stringField(d.proofReference,80),location=stringField(d.location,48),notes=stringField(d.notes,1000);
@@ -42,14 +43,14 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
    }
    const at=new Date().toISOString();
    const document=["ATTESTATION DE RÉCEPTION PHYSIQUE — RENN’FRIPES","SKU : "+item.sku,"Vêtement : "+item.title,"Bordereau : "+reference,"Emplacement : "+location,"Réception déclarée par : "+admin.handle+" ("+admin.id+")","Date UTC : "+at,"Observations : "+notes].join("\n");
-   const hash=createHash("sha256").update(document,"utf8").digest("hex");
+   const hash=evidenceSha256(document);
    await client.query("INSERT INTO consignment_receipts(item_id,receiver_id,proof_reference,location_code,notes,receipt_document,receipt_sha256,received_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
     [id,admin.id,reference,location,notes,document,hash,at]);
    await client.query("UPDATE consignment_inventory SET state='quality_check',location_code=$2,received_at=$3,updated_at=now() WHERE id=$1",[id,location,at]);
    nextState="quality_check";detail="Réception physique attestée : "+reference;
   }
   if(action==="quality"){
-   if(item.state!=="quality_check"){await client.query("ROLLBACK");return fail("Article non prêt pour le contrôle",409)}
+   if(!allowedWorkflowAction("quality",item.state)){await client.query("ROLLBACK");return fail("Article non prêt pour le contrôle",409)}
    const verdict=d.verdict,notes=stringField(d.notes,1000);
    const raw=d.checks;
    if(!raw||typeof raw!=="object"||Array.isArray(raw)||!["passed","rejected"].includes(String(verdict))){
@@ -67,14 +68,14 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
    detail="Contrôle qualité "+(verdict==="passed"?"validé":"refusé");
   }
   if(action==="publish"){
-   if(item.state!=="ready"){await client.query("ROLLBACK");return fail("Article non prêt à publier",409)}
+   if(!allowedWorkflowAction("publish",item.state)){await client.query("ROLLBACK");return fail("Article non prêt à publier",409)}
    const size=stringField(d.size,40),photoUrl=stringField(d.photoUrl,1000),description=stringField(d.description,1500);
    if(!size||description.length<20||!validPhoto(photoUrl)){
     await client.query("ROLLBACK");return fail("Taille, description et photo HTTPS issue d'un hôte autorisé requises",400);
    }
    const evidence=await client.query("SELECT (SELECT count(*) FROM consignment_receipts WHERE item_id=$1) AS receipt,(SELECT count(*) FROM consignment_quality_reports WHERE item_id=$1 AND verdict='passed') AS quality,(SELECT count(*) FROM consignment_mandates WHERE item_id=$1) AS mandate",[id]);
    const e=evidence.rows[0];
-   if(Number(e.receipt)!==1||Number(e.quality)!==1||Number(e.mandate)!==1){
+   if(!hasPublicationEvidence({receiptCount:Number(e.receipt),positiveQualityCount:Number(e.quality),mandateCount:Number(e.mandate)})){
     await client.query("ROLLBACK");return fail("Réception, contrôle qualité ou mandat manquant",409);
    }
    await client.query("INSERT INTO consignment_publications(item_id,publisher_id,size_label,photo_url,public_description) VALUES($1,$2,$3,$4,$5)",
