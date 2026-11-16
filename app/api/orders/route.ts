@@ -1,6 +1,22 @@
-import {sql} from "@/lib/db";
 import {getServerConfig} from "@/lib/config/env";
 import {body,currentUser,fail,stringField,trustedRequest} from "@/lib/security";
+import {createOrderService} from "@/modules/orders/service";
+import {postgresOrderRepository} from "@/modules/orders/repository.pg";
 export const runtime="nodejs";
-export async function GET(){try{const user=await currentUser();if(!user)return fail("Connexion requise",401);const orders=await sql("SELECT o.id,o.price_cents,o.status,o.created_at,i.sku,s.method,s.status AS shipment_status,s.tracking_reference FROM marketplace_orders o JOIN consignment_inventory i ON i.id=o.inventory_id LEFT JOIN shipments s ON s.order_id=o.id WHERE o.buyer_id=$1 ORDER BY o.created_at DESC LIMIT 50",[user.id]);return Response.json({orders})}catch{return fail("Commandes indisponibles",503)}}
-export async function POST(request:Request){try{if(getServerConfig().production||!getServerConfig().flags.ordersEnabled)return fail("Demandes de commande désactivées",503);if(!await trustedRequest(request))return fail("Origine non autorisée",403);const user=await currentUser();if(!user)return fail("Connexion requise",401);const d=await body(request),sku=stringField(d.sku,48);if(!/^RF-[0-9]{7}$/.test(sku))return fail("Référence invalide");const inserted=await sql("INSERT INTO marketplace_orders(buyer_id,inventory_id,price_cents) SELECT $1,i.id,i.list_price_cents FROM consignment_inventory i JOIN consignment_requests r ON r.id=i.request_id WHERE i.sku=$2 AND i.state='listed' AND r.owner_id<>$1 AND NOT EXISTS(SELECT 1 FROM marketplace_orders o WHERE o.inventory_id=i.id) RETURNING id,status",[user.id,sku]);return inserted.length?Response.json({order:inserted[0],notice:"Demande enregistrée, aucun paiement encaissé"},{status:201}):fail("Article indisponible",409)}catch{return fail("Commande non enregistrée",503)}}
+const service=createOrderService(postgresOrderRepository);
+export async function GET(){
+ try{
+  const user=await currentUser();if(!user)return fail("Connexion requise",401);
+  return Response.json({orders:await service.listForBuyer(user.id)});
+ }catch{return fail("Commandes indisponibles",503)}
+}
+export async function POST(request:Request){
+ try{
+  if(getServerConfig().production||!getServerConfig().flags.ordersEnabled)return fail("Demandes de commande désactivées",503);
+  if(!await trustedRequest(request))return fail("Origine non autorisée",403);
+  const user=await currentUser();if(!user)return fail("Connexion requise",401);
+  const data=await body(request),sku=stringField(data.sku,48);
+  const result=await service.request(user.id,sku);
+  return result.ok?Response.json({order:result.value,notice:"Demande enregistrée, aucun paiement encaissé"},{status:201}):fail(result.error,result.status);
+ }catch{return fail("Commande non enregistrée",503)}
+}
