@@ -4,6 +4,8 @@ Application Next.js 16 / React 19 / PostgreSQL pour le dépôt-vente de vêtemen
 
 **État : préproduction technique, pas encore de lancement commercial.** Catalogue de démonstration disponible ; les articles réellement publiés proviennent de PostgreSQL. Les **commandes et paiements restent désactivés** jusqu'à intégration et validation du prestataire de paiement, des remboursements et des protections anti-double vente.
 
+**Dimension 1 / V0.5.1 en développement :** [Invariants économiques, stock, cryptographie et sécurité](docs/V0.5.1-INVARIANTS.md) ; suite reproductible avec `npm run test:invariants`.
+
 **Avant toute ouverture :** [Critères de release](docs/PRODUCTION-READINESS.md) · [Architecture](docs/ARCHITECTURE.md) · [Configuration Railway](docs/RAILWAY-CONFIG.md).
 
 ## Fonctionnalités
