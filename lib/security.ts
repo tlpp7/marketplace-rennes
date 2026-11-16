@@ -2,6 +2,7 @@ import {createHmac,randomBytes,scryptSync,timingSafeEqual} from "node:crypto";
 import {cookies} from "next/headers";
 import {sql} from "./db";
 import {getServerConfig} from "@/lib/config/env";
+import {isTrustedOrigin} from "@/lib/security/origin-policy";
 export type Actor={id:string;handle:string};
 const key=()=>{const k=getServerConfig().session.secret;if(k.length<32)throw Error("SESSION_SECRET must contain at least 32 characters");return k};
 export function hashPassword(p:string){const salt=randomBytes(16).toString("hex");return salt+":"+scryptSync(p,salt,64).toString("hex")}
@@ -14,19 +15,8 @@ export async function setSession(userId:string){const token=newSessionToken();co
 export async function clearSession(){const raw=(await cookies()).get("rf_session")?.value;const id=verifyToken(raw);if(id)await sql("DELETE FROM sessions WHERE id=$1",[id]);(await cookies()).delete("rf_session")}
 // Compare against the configured public origin, never the user-controlled Host header.
 export async function trustedRequest(request:Request){
- const raw=request.headers.get("origin");
- if(!raw)return false;
- try{
-  const origin=new URL(raw);
-  if(!["https:","http:"].includes(origin.protocol)||origin.username||origin.password||origin.search||origin.hash||origin.pathname!=="/")return false;
-  const config=getServerConfig();
-  if(config.urls.appOrigin)return origin.origin===config.urls.appOrigin;
-  if(config.production)return false; // Fail closed without APP_ORIGIN
-  const target=new URL(request.url);
-  const loopback=["localhost","127.0.0.1","[::1]"];
-  return loopback.includes(target.hostname)&&loopback.includes(origin.hostname)
-   &&origin.protocol===target.protocol&&origin.port===target.port;
- }catch{return false}
+ const config=getServerConfig();
+ return isTrustedOrigin(request.headers.get("origin"),config.urls.appOrigin,request.url,config.production);
 }
 export function fail(message:string,status=400){return Response.json({error:message},{status})}
 // Reject oversized streamed bodies even when Content-Length is missing or forged.

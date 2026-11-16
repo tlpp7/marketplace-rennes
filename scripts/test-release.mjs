@@ -57,3 +57,12 @@ test("operational release documentation exists",()=>{
   assert.ok(existsSync(file),"Required release document missing: "+file);
  }
 });
+
+test("V0.5.1 domain policies are wired to server APIs and SQL",()=>{
+ assert.match(read("app/api/admin/inventory/[id]/route.ts"),/allowedAdminTransition/);
+ assert.match(read("app/api/admin/inventory/[id]/operations/route.ts"),/hasPublicationEvidence/);
+ assert.match(read("infra/sql/008_v051_unsettled_sale_guard.sql"),/trg_reject_unsettled_sale/);
+ assert.match(read("lib/security.ts"),/isTrustedOrigin/);
+ assert.match(read("lib/consignment-mandate.ts"),/evidenceSha256/);
+ assert.match(read("package.json"),/test:invariants/);
+});

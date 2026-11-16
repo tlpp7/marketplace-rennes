@@ -42,6 +42,7 @@ jobs:
       - run: npm run check:profiles
       - run: npm run lint
       - run: npm run test:config
+      - run: npm run test:unit
       - run: npm run test:release
       - name: Apply SQL migrations
         run: |

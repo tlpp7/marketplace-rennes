@@ -1,4 +1,4 @@
-import {createHash} from "node:crypto";
+import {evidenceSha256} from "@/lib/crypto/evidence";
 import {getServerConfig} from "@/lib/config/env";
 type Item={sku:string;title:string;list_price_cents:number;commission_bps:number};
 export function mandateConfig(){
@@ -22,7 +22,7 @@ export function mandatePreview(item:Item){
    "",
    c.terms
   ].join("\n");
- return {version:c.version,text,sha256:createHash("sha256").update(text,"utf8").digest("hex")};
+ return {version:c.version,text,sha256:evidenceSha256(text)};
 }
 export function finalizedMandate(item:Item,depositorName:string,depositorAddress:string){
  const preview=mandatePreview(item);
@@ -33,5 +33,5 @@ export function finalizedMandate(item:Item,depositorName:string,depositorAddress
   "Adresse du déposant : "+depositorAddress,
   "Le déposant reconnaît avoir lu les conditions et accepte ce mandat par validation explicite sur son compte."
  ].join("\n");
- return {version:preview.version,document,sha256:createHash("sha256").update(document,"utf8").digest("hex")};
+ return {version:preview.version,document,sha256:evidenceSha256(document)};
 }
