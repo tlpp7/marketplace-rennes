@@ -90,6 +90,7 @@ test("V0.5.2 routes delegate to services, adapters preserve legacy SQL and envel
   "modules/inventory/service.ts"
  ]){
   const source=read(path);
-  assert.doesNotMatch(source,/from "@\\/lib\\/db"|from "next\\//);
+  assert.equal(source.includes('from "@/lib/db"'),false);
+  assert.equal(source.includes('from "next/'),false);
  }
 });
