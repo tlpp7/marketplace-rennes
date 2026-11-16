@@ -21,7 +21,8 @@ const files=[
  "004_orders.sql",
  "005_auth_guard.sql",
  "006_v02_operations.sql",
- "007_v02_hardening.sql"
+ "007_v02_hardening.sql",
+ "008_v051_unsettled_sale_guard.sql"
 ];
 await client.connect();
 try {
