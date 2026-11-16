@@ -73,6 +73,7 @@ test("V0.5.2 routes delegate to services, adapters preserve legacy SQL and envel
   ["app/api/consignments/route.ts","createConsignmentService"],
   ["app/api/consignments/[id]/route.ts","createConsignmentService"],
   ["app/api/admin/consignments/route.ts","createConsignmentService"],
+  ["app/api/admin/consignments/[id]/route.ts","createReviewService"],
   ["app/api/orders/route.ts","createOrderService"],
   ["app/api/orders/[id]/route.ts","createOrderService"],
   ["app/api/admin/orders/route.ts","createOrderService"],
@@ -84,6 +85,7 @@ test("V0.5.2 routes delegate to services, adapters preserve legacy SQL and envel
  assert.match(read("modules/orders/repository.pg.ts"),/NOT EXISTS/);
  for(const path of [
   "modules/consignment/service.ts",
+  "modules/consignment/review-service.ts",
   "modules/orders/service.ts",
   "modules/inventory/service.ts"
  ]){
