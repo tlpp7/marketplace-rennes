@@ -10,7 +10,7 @@ const db=new pg.Client({connectionString:url});try{
  if(missing.length)throw Error("Migrations manquantes : "+missing.join(", "));
  const triggers=await db.query("SELECT tgname FROM pg_trigger WHERE NOT tgisinternal");
  const present=new Set(triggers.rows.map(r=>r.tgname));
- const required=["trg_enforce_consignment_workflow","trg_receipts_immutable","trg_quality_immutable","trg_mandates_immutable","trg_publications_immutable"];
+ const required=["trg_enforce_consignment_workflow","trg_receipts_immutable","trg_quality_immutable","trg_mandates_immutable","trg_publications_immutable","trg_reject_unsettled_sale"];
  const missingTriggers=required.filter(v=>!present.has(v));
  if(missingTriggers.length)throw Error("Triggers V0.2 manquants : "+missingTriggers.join(", "));
  console.log("PostgreSQL OK:",rows[0].db,"—",expected.length,"tables et",required.length,"triggers requis présents");
