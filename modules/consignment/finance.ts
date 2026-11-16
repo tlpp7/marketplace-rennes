@@ -10,7 +10,7 @@ export function calculateConsignment(priceCents:number,commissionBps:number,proc
   throw Error("Invalid price or commission");
  const price=BigInt(priceCents),bps=BigInt(commissionBps);
  // Positive half-up rounding: agrees with Math.round on small positive amounts.
- const commissionCents=Number((price*bps+5000n)/10000n);
+ const commissionCents=Number((price*bps+BigInt(5000))/BigInt(10000));
  const payoutCents=priceCents-commissionCents;
  const contributionCents=commissionCents-processingCents;
  return {priceCents,commissionCents,payoutCents,contributionCents};
