@@ -12,3 +12,13 @@
 Les tâches de préparation à la production portent sur des protections HTTP (`Origin`, limites JSON, en-têtes), des contrôles de santé distincts, la reproductibilité `npm ci`, l'audit automatique du dépôt et la documentation de release.
 
 **Ces tâches ne débloquent pas les paiements**, n'installent pas le connecteur S3 et ne remplacent pas la revue des sauvegardes. Voir `docs/PRODUCTION-READINESS.md` pour les critères de promotion.
+
+## V0.5.1 — Dimension 1 : règles invariantes (branche isolée)
+- Calcul de commission exact en centimes avec BigInt et conservation des montants.
+- Modèle optionnel de viabilité par transaction et seuil de rentabilité (hypothèses, pas prévision).
+- Politique unique des transitions administrateur, actions métier et preuves de publication.
+- Origine HTTP et SHA-256 extraits en modules testables.
+- Nouvelle migration `008_v051_unsettled_sale_guard.sql` interdisant de marquer un stock vendu sans flux PSP vérifié.
+- Tests de propriétés déterministes et vérifications PostgreSQL dans GitHub Actions.
+
+**Non fusionné / non déployé en production.** Voir `docs/V0.5.1-INVARIANTS.md`.
