@@ -1,2 +1,16 @@
-import {db} from "@/lib/db";import {allowedAdminTransition} from "@/modules/inventory/state-machine";import {currentAdmin} from "@/lib/admin";import {body,fail,stringField,trustedRequest} from "@/lib/security";export const runtime="nodejs";
-export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){if(!await trustedRequest(request))return fail("Origine non autorisée",403);const a=await currentAdmin();if(!a)return fail("Accès refusé",403);const {id}=await params;const d=await body(request),target=stringField(d.state,24),location=stringField(d.location,48);const client=await db.connect();try{await client.query("BEGIN");const r=await client.query("SELECT state FROM consignment_inventory WHERE id=$1 FOR UPDATE",[id]);if(!r.rows.length){await client.query("ROLLBACK");return fail("Article introuvable",404)}const previous=r.rows[0].state as string;if(!allowedAdminTransition(previous,target)){await client.query("ROLLBACK");return fail("Transition impossible",409)}await client.query("UPDATE consignment_inventory SET state=$2,location_code=$3,updated_at=now() WHERE id=$1",[id,target,location]);await client.query("INSERT INTO stock_movements(item_id,actor_id,from_state,to_state,description) VALUES($1,$2,$3,$4,$5)",[id,a.id,previous,target,"Transition administrateur"]);await client.query("COMMIT");return Response.json({state:target})}catch{await client.query("ROLLBACK");return fail("Transition échouée",500)}finally{client.release()}}
+import {currentAdmin} from "@/lib/admin";
+import {body,fail,stringField,trustedRequest} from "@/lib/security";
+import {createInventoryService} from "@/modules/inventory/service";
+import {postgresInventoryUnitOfWork} from "@/modules/inventory/repository.pg";
+export const runtime="nodejs";
+const service=createInventoryService(postgresInventoryUnitOfWork);
+export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){
+ if(!await trustedRequest(request))return fail("Origine non autorisée",403);
+ const admin=await currentAdmin();if(!admin)return fail("Accès refusé",403);
+ const {id}=await params,data=await body(request);
+ const target=stringField(data.state,24),location=stringField(data.location,48);
+ try{
+  const result=await service.changeState({itemId:id,actorId:admin.id,target,location});
+  return result.ok?Response.json(result.value):fail(result.error,result.status);
+ }catch{return fail("Transition échouée",500)}
+}
