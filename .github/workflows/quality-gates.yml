@@ -29,7 +29,7 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: node --test scripts/test-unit.mjs
+      - run: npm run test:unit
       - run: npm run test:config
       - run: npm run test:release
   browser-tests:
